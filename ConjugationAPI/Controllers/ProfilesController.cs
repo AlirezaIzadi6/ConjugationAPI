@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ConjugationAPI.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ConjugationAPI.Controllers
 {
@@ -21,10 +23,10 @@ namespace ConjugationAPI.Controllers
         }
 
         // GET: api/Profiles
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<ActionResult<IEnumerable<Profile>>> GetProfiles()
         {
-            return await _context.Profiles.ToListAsync();
+            return await _context.Profiles.Where(q => q.UserId == User.FindFirst(ClaimTypes.NameIdentifier).Value).ToListAsync();
         }
 
         // GET: api/Profiles/5
@@ -75,8 +77,10 @@ namespace ConjugationAPI.Controllers
         // POST: api/Profiles
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Profile>> PostProfile(Profile profile)
         {
+            profile.UserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             _context.Profiles.Add(profile);
             await _context.SaveChangesAsync();
 
