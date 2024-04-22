@@ -26,11 +26,12 @@ namespace ConjugationAPI.Controllers
         [HttpGet, Authorize]
         public async Task<ActionResult<IEnumerable<Profile>>> GetProfiles()
         {
-            return await _context.Profiles.Where(q => q.UserId == User.FindFirst(ClaimTypes.NameIdentifier).Value).ToListAsync();
+            return await _context.Profiles.Where(q => q.CheckUser(User)).ToListAsync();
         }
 
         // GET: api/Profiles/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<Profile>> GetProfile(int id)
         {
             var profile = await _context.Profiles.FindAsync(id);
@@ -40,18 +41,22 @@ namespace ConjugationAPI.Controllers
                 return NotFound();
             }
 
+            if (!profile.CheckUser(User)) return Unauthorized();
             return profile;
         }
 
         // PUT: api/Profiles/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> PutProfile(int id, Profile profile)
         {
             if (id != profile.ProfileId)
             {
                 return BadRequest();
             }
+
+            if (!profile.CheckUser(User)) return Unauthorized(profile);
 
             _context.Entry(profile).State = EntityState.Modified;
 
@@ -80,7 +85,7 @@ namespace ConjugationAPI.Controllers
         [Authorize]
         public async Task<ActionResult<Profile>> PostProfile(Profile profile)
         {
-            profile.UserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            profile.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             _context.Profiles.Add(profile);
             await _context.SaveChangesAsync();
 
@@ -89,6 +94,7 @@ namespace ConjugationAPI.Controllers
 
         // DELETE: api/Profiles/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteProfile(int id)
         {
             var profile = await _context.Profiles.FindAsync(id);
@@ -97,6 +103,7 @@ namespace ConjugationAPI.Controllers
                 return NotFound();
             }
 
+            if (!profile.CheckUser(User)) return Unauthorized();
             _context.Profiles.Remove(profile);
             await _context.SaveChangesAsync();
 
