@@ -51,7 +51,10 @@ namespace ConjugationAPI.Controllers
         [Authorize]
         public async Task<IActionResult> PutProfile(int id, Profile profile)
         {
-            if (id != profile.ProfileId)
+            if (id != profile.ProfileId ||
+                !(InfinitivesIsValid(profile.Infinitives) &&
+                MoodsIsValid(profile.Moods) &&
+                PersonsIsValid(profile.Persons)))
             {
                 return BadRequest();
             }
@@ -85,11 +88,17 @@ namespace ConjugationAPI.Controllers
         [Authorize]
         public async Task<ActionResult<Profile>> PostProfile(Profile profile)
         {
-            profile.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _context.Profiles.Add(profile);
-            await _context.SaveChangesAsync();
+            if (InfinitivesIsValid(profile.Infinitives) &&
+                MoodsIsValid(profile.Moods) &&
+                PersonsIsValid(profile.Persons))
+                {
+                profile.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                _context.Profiles.Add(profile);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProfile", new { id = profile.ProfileId }, profile);
+                return CreatedAtAction("GetProfile", new { id = profile.ProfileId }, profile);
+            }
+            return BadRequest();
         }
 
         // DELETE: api/Profiles/5
@@ -113,6 +122,40 @@ namespace ConjugationAPI.Controllers
         private bool ProfileExists(int id)
         {
             return _context.Profiles.Any(e => e.ProfileId == id);
+        }
+
+        private bool InfinitivesIsValid(string value)
+        {
+            if (value == "all") return true;
+            string[] infinitives = value.Split(',');
+            foreach (string infinitive in infinitives)
+            {
+                if (!_context.conjugations.Any(e => e.Infinitive == infinitive)) return false;
+            }
+            return true;
+        }
+
+        private bool MoodsIsValid(string value)
+        {
+            if (value == "all") return true;
+            string[] moods = value.Split(',');
+            foreach (var mood in moods)
+            {
+                if (!_context.conjugations.Any(e => e.Mood == mood)) return false;
+            }
+            return true;
+        }
+
+        private bool PersonsIsValid(string value)
+        {
+            if (value == "all") return true;
+            string[] persons = value.Split(',');
+            List<string> validPersons = new() { "1s", "2s", "3s", "1p", "2p", "3p" };
+            foreach (var person in persons)
+            {
+                if (!validPersons.Contains(value)) return false;
+            }
+            return true;
         }
     }
 }
