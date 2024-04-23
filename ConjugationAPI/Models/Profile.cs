@@ -13,6 +13,7 @@ public class Profile
     public string Name { get; set; } = string.Empty;
     public string Moods { get; set; } = string.Empty;
     public string Infinitives {  get; set; } = string.Empty;
+    public string Persons {  get; set; } = string.Empty;
 
     public bool CheckUser(ClaimsPrincipal user)
     {
