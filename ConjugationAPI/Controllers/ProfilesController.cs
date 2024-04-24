@@ -26,7 +26,7 @@ namespace ConjugationAPI.Controllers
         [HttpGet, Authorize]
         public async Task<ActionResult<IEnumerable<Profile>>> GetProfiles()
         {
-            return await _context.Profiles.Where(q => q.CheckUser(User)).ToListAsync();
+            return await _context.Profiles.Where(e => e.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToListAsync();
         }
 
         // GET: api/Profiles/5
