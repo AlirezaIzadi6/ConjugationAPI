@@ -2,7 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ConjugationAPI.Models;
+using NuGet.Packaging.Signing;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ConjugationAPI.Controllers;
 
@@ -18,7 +21,7 @@ public class TestController : ControllerBase
 
     [HttpGet("{id}/random")]
     [Authorize]
-    public async Task<ActionResult<Question>> GetRandomQuestion(int id)
+    public async Task<ActionResult<QuestionDTO>> GetRandomQuestion(int id)
     {
         if (!_context.Profiles.Any(e => e.ProfileId == id)) return NotFound();
 
@@ -26,21 +29,66 @@ public class TestController : ControllerBase
         if (!profile.CheckUser(User)) return Unauthorized();
         Profile defaultProfile = _context.Profiles.First(e => e.Name == "default");
         Random rand = new();
-        List<string> infinitives = new();
-        List<string> moods = new();
-        List<string> persons = new();
 
-        if (profile.Infinitives == "all") infinitives = defaultProfile.Infinitives.Split(',').ToList();
-        else infinitives = profile.Infinitives.Split(',').ToList();
-        if (profile.Moods == "all") moods = defaultProfile.Moods.Split(',').ToList();
-        else moods = profile.Moods.Split(',').ToList();
-        if (profile.Persons == "all") persons = defaultProfile.Persons.Split(',').ToList();
-        else persons = profile.Persons.Split(',').ToList();
+        var infinitives = (profile.Infinitives == "all") ? defaultProfile.Infinitives.Split(',') : profile.Infinitives.Split(',');
+        var moods = (profile.Moods == "all") ? defaultProfile.Moods.Split(',') : profile.Moods.Split(',');
+        var persons = (profile.Persons == "all") ? defaultProfile.Persons.Split(',') : profile.Persons.Split(',');
+        string infinitive, moodAndTense, mood, tense, person;
+        string correctAnswer = string.Empty;
+        while (true)
+        {
+            infinitive = infinitives[rand.Next(0, infinitives.Length)];
+            moodAndTense = moods[rand.Next(0, moods.Length)];
+            mood = moodAndTense.Split('-')[0];
+            tense = moodAndTense.Split('-')[1];
+            Conjugation conjugation = _context.conjugations.FirstOrDefault(e => e.Infinitive == infinitive && e.Mood == mood && e.Tense == tense);
+            person = persons[rand.Next(0, persons.Length)];
+            switch(person)
+            {
+                case "1s":
+                    correctAnswer = conjugation.Form1S;
+                    break;
+                case "2s":
+                    correctAnswer = conjugation.Form2S;
+                    break;
+                case "3s":
+                    correctAnswer = conjugation.Form3S;
+                    break;
+                case "1p":
+                    correctAnswer = conjugation.Form1P;
+                    break;
+                case "2p":
+                    correctAnswer = conjugation.Form2P;
+                    break;
+                case "3p":
+                    correctAnswer = conjugation.Form3P;
+                    break;
+            }
+            if (!correctAnswer.IsNullOrEmpty()) break;
+        }
+        Question question = new() { UserId = User.FindFirstValue(ClaimTypes.NameIdentifier), Infinitive = infinitive, Mood = moodAndTense, Person = person, HasBeenAnswered = false, Answer= correctAnswer};
+        _context.questions.Add(question);
+        await _context.SaveChangesAsync();
+        QuestionDTO questionDTO = new() { UserId = question.UserId, Id = question.Id, infinitive = question.Infinitive, Mood = question.Mood, Person = question.Person };
+        return questionDTO;
+    }
 
-        string infinitive = infinitives.ElementAt(rand.Next(0, infinitives.Count));
-        string mood = moods.ElementAt(rand.Next(0, moods.Count));
-        string person = persons.ElementAt(rand.Next(0, persons.Count));
-        Question question = new() { UserId = User.FindFirstValue(ClaimTypes.NameIdentifier), infinitive = infinitive, Person = person, Mood = mood };
-        return question;
+    [HttpPost("answer")]
+    [Authorize]
+    public async Task<ActionResult> Examine(Answer answer)
+    {
+        if (!(answer.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))) return Unauthorized();
+        if (!(_context.questions.Any(e => e.Id == answer.QuestionId))) return BadRequest();
+
+        Question question = _context.questions.Find(answer.QuestionId);
+        if (question.HasBeenAnswered) return BadRequest("This question has previously been answered by you.");
+
+        if (!(answer.AnswerText == question.Answer)) return Ok("wrong");
+
+        question.HasBeenAnswered = true;
+        _context.Entry(question).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+
+        return Ok("right");
     }
 }
