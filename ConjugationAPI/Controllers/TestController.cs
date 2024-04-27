@@ -33,15 +33,15 @@ public class TestController : ControllerBase
         var infinitives = (profile.Infinitives == "all") ? defaultProfile.Infinitives.Split(',') : profile.Infinitives.Split(',');
         var moods = (profile.Moods == "all") ? defaultProfile.Moods.Split(',') : profile.Moods.Split(',');
         var persons = (profile.Persons == "all") ? defaultProfile.Persons.Split(',') : profile.Persons.Split(',');
-        string infinitive, moodAndTense, mood, tense, person;
-        string correctAnswer = string.Empty;
+        string infinitive, moodAndTense, mood, tense, person = string.Empty;
+        string? correctAnswer = string.Empty;
         while (true)
         {
             infinitive = infinitives[rand.Next(0, infinitives.Length)];
             moodAndTense = moods[rand.Next(0, moods.Length)];
             mood = moodAndTense.Split('-')[0];
             tense = moodAndTense.Split('-')[1];
-            Conjugation conjugation = _context.conjugations.FirstOrDefault(e => e.Infinitive == infinitive && e.Mood == mood && e.Tense == tense);
+            Conjugation conjugation = _context.conjugations.First(e => e.Infinitive == infinitive && e.Mood == mood && e.Tense == tense);
             person = persons[rand.Next(0, persons.Length)];
             switch(person)
             {
@@ -66,7 +66,8 @@ public class TestController : ControllerBase
             }
             if (!correctAnswer.IsNullOrEmpty()) break;
         }
-        Question question = new() { UserId = User.FindFirstValue(ClaimTypes.NameIdentifier), Infinitive = infinitive, Mood = moodAndTense, Person = person, HasBeenAnswered = false, Answer= correctAnswer};
+        if (correctAnswer == null) correctAnswer = string.Empty;
+        Question question = new() { UserId = CurrentUser(), Infinitive = infinitive, Mood = moodAndTense, Person = person, HasBeenAnswered = false, Answer = correctAnswer};
         _context.questions.Add(question);
         await _context.SaveChangesAsync();
         QuestionDTO questionDTO = new() { UserId = question.UserId, Id = question.Id, infinitive = question.Infinitive, Mood = question.Mood, Person = question.Person };
@@ -78,9 +79,9 @@ public class TestController : ControllerBase
     public async Task<ActionResult> Examine(Answer answer)
     {
         if (!(answer.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))) return Unauthorized();
-        if (!(_context.questions.Any(e => e.Id == answer.QuestionId))) return BadRequest();
+        Question? question = _context.questions.Find(answer.QuestionId);
+        if (question == null) return BadRequest();
 
-        Question question = _context.questions.Find(answer.QuestionId);
         if (question.HasBeenAnswered) return BadRequest("This question has previously been answered by you.");
 
         if (!(answer.AnswerText == question.Answer)) return Ok("wrong");
@@ -90,5 +91,11 @@ public class TestController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok("right");
+    }
+
+    private string CurrentUser()
+    {
+        string? currentUser = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return currentUser == null ? string.Empty : currentUser;
     }
 }
