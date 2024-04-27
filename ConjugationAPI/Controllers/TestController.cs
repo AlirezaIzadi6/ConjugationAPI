@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ConjugationAPI.Models;
-using NuGet.Packaging.Signing;
 using Microsoft.IdentityModel.Tokens;
+using NuGet.Packaging.Signing;
+using ConjugationAPI.Models;
 
 namespace ConjugationAPI.Controllers;
 
@@ -23,10 +23,16 @@ public class TestController : ControllerBase
     [Authorize]
     public async Task<ActionResult<QuestionDTO>> GetRandomQuestion(int id)
     {
-        if (!_context.Profiles.Any(e => e.ProfileId == id)) return NotFound();
+        if (!_context.Profiles.Any(e => e.ProfileId == id))
+        {
+            return NotFound();
+        }
 
         Profile profile = _context.Profiles.First(e => e.ProfileId == id);
-        if (!profile.CheckUser(User)) return Unauthorized();
+        if (!profile.CheckUser(User))
+        {
+            return Unauthorized();
+        }
         Profile defaultProfile = _context.Profiles.First(e => e.Name == "default");
         Random rand = new();
 
@@ -64,13 +70,34 @@ public class TestController : ControllerBase
                     correctAnswer = conjugation.Form3P;
                     break;
             }
-            if (!correctAnswer.IsNullOrEmpty()) break;
+            if (!correctAnswer.IsNullOrEmpty())
+            {
+                break;
+            }
         }
-        if (correctAnswer == null) correctAnswer = string.Empty;
-        Question question = new() { UserId = CurrentUser(), Infinitive = infinitive, Mood = moodAndTense, Person = person, HasBeenAnswered = false, Answer = correctAnswer};
+        if (correctAnswer == null)
+        {
+            correctAnswer = string.Empty;
+        }
+        Question question = new()
+        {
+            UserId = CurrentUser(),
+            Infinitive = infinitive,
+            Mood = moodAndTense,
+            Person = person,
+            HasBeenAnswered = false,
+            Answer = correctAnswer
+        };
         _context.questions.Add(question);
         await _context.SaveChangesAsync();
-        QuestionDTO questionDTO = new() { UserId = question.UserId, Id = question.Id, infinitive = question.Infinitive, Mood = question.Mood, Person = question.Person };
+        QuestionDTO questionDTO = new()
+        {
+            UserId = question.UserId,
+            Id = question.Id,
+            infinitive = question.Infinitive,
+            Mood = question.Mood,
+            Person = question.Person
+        };
         return questionDTO;
     }
 
@@ -78,13 +105,25 @@ public class TestController : ControllerBase
     [Authorize]
     public async Task<ActionResult> Examine(Answer answer)
     {
-        if (!(answer.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))) return Unauthorized();
+        if (!(answer.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)))
+        {
+            return Unauthorized();
+        }
         Question? question = _context.questions.Find(answer.QuestionId);
-        if (question == null) return BadRequest();
+        if (question == null)
+        {
+            return BadRequest();
+        }
 
-        if (question.HasBeenAnswered) return BadRequest("This question has previously been answered by you.");
+        if (question.HasBeenAnswered)
+        {
+            return BadRequest("This question has previously been answered by you.");
+        }
 
-        if (!(answer.AnswerText == question.Answer)) return Ok("wrong");
+        if (!(answer.AnswerText == question.Answer))
+        {
+            return Ok("wrong");
+        }
 
         question.HasBeenAnswered = true;
         _context.Entry(question).State = EntityState.Modified;
