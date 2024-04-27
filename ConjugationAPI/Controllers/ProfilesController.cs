@@ -54,7 +54,7 @@ public class ProfilesController : ControllerBase
     [Authorize]
     public async Task<IActionResult> PutProfile(int id, Profile profile)
     {
-        if (id != profile.ProfileId ||
+        if (id != profile.Id ||
             !(InfinitivesIsValid(profile.Infinitives) &&
             MoodsIsValid(profile.Moods) &&
             PersonsIsValid(profile.Persons)))
@@ -102,7 +102,7 @@ public class ProfilesController : ControllerBase
             _context.Profiles.Add(profile);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProfile", new { id = profile.ProfileId }, profile);
+            return CreatedAtAction("GetProfile", new { id = profile.Id }, profile);
         }
         return BadRequest();
     }
@@ -131,7 +131,7 @@ public class ProfilesController : ControllerBase
 
     private bool ProfileExists(int id)
     {
-        return _context.Profiles.Any(e => e.ProfileId == id);
+        return _context.Profiles.Any(e => e.Id == id);
     }
 
     private bool InfinitivesIsValid(string value)

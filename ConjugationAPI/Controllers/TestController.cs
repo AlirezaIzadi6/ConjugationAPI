@@ -23,12 +23,12 @@ public class TestController : ControllerBase
     [Authorize]
     public async Task<ActionResult<QuestionDTO>> GetRandomQuestion(int id)
     {
-        if (!_context.Profiles.Any(e => e.ProfileId == id))
+        if (!_context.Profiles.Any(e => e.Id == id))
         {
             return NotFound();
         }
 
-        Profile profile = _context.Profiles.First(e => e.ProfileId == id);
+        Profile profile = _context.Profiles.First(e => e.Id == id);
         if (!profile.CheckUser(User))
         {
             return Unauthorized();
