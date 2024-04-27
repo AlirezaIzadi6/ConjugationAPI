@@ -11,4 +11,5 @@ public class Question
     public string Person {  get; set; } = string.Empty;
     public string Answer {  get; set; } = string.Empty;
     public bool HasBeenAnswered { get; set; } = false;
+    public DateTime TimeStamp { get; set; } = DateTime.Now;
 }
