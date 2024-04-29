@@ -12,4 +12,16 @@ public class Question
     public string Answer {  get; set; } = string.Empty;
     public bool HasBeenAnswered { get; set; } = false;
     public DateTime TimeStamp { get; set; } = DateTime.Now;
+
+    public QuestionDTO GetDTO()
+    {
+        return new QuestionDTO()
+        {
+            Id = Id,
+            UserId = UserId,
+            infinitive = Infinitive,
+            Mood = Mood,
+            Person = Person
+        };
+    }
 }

@@ -90,14 +90,7 @@ public class TestController : ControllerBase
         };
         _context.questions.Add(question);
         await _context.SaveChangesAsync();
-        QuestionDTO questionDTO = new()
-        {
-            UserId = question.UserId,
-            Id = question.Id,
-            infinitive = question.Infinitive,
-            Mood = question.Mood,
-            Person = question.Person
-        };
+        QuestionDTO questionDTO = question.GetDTO();
         return questionDTO;
     }
 
