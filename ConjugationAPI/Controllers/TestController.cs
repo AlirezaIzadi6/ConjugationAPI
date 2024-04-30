@@ -105,7 +105,7 @@ public class TestController : ControllerBase
         Question? question = _context.questions.Find(answer.QuestionId);
         if (question == null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
         if (question.HasBeenAnswered)
