@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Packaging.Signing;
 using ConjugationAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace ConjugationAPI.Controllers;
 
@@ -14,9 +15,11 @@ namespace ConjugationAPI.Controllers;
 public class TestController : ControllerBase
 {
     private readonly ConjugationContext _context;
-    public TestController(ConjugationContext context)
+    private readonly ApplicationDbContext _applicationDbContext;
+    public TestController(ConjugationContext context, ApplicationDbContext applicationDbContext)
     {
         _context = context;
+        _applicationDbContext = applicationDbContext;
     }
 
     [HttpGet("{id}/random")]
@@ -121,6 +124,10 @@ public class TestController : ControllerBase
         question.HasBeenAnswered = true;
         _context.Entry(question).State = EntityState.Modified;
         await _context.SaveChangesAsync();
+        MyUser? currentUser = _applicationDbContext.Users.Find(CurrentUser());
+        currentUser.Score += 5;
+        _applicationDbContext.Entry(currentUser).State = EntityState.Modified;
+        await _applicationDbContext.SaveChangesAsync();
 
         return Ok("right");
     }
