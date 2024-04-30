@@ -24,7 +24,7 @@ public class TestController : ControllerBase
 
     [HttpGet("{id}/random")]
     [Authorize]
-    public async Task<ActionResult<QuestionDTO>> GetRandomQuestion(int id)
+    public async Task<ActionResult<QuestionDto>> GetRandomQuestion(int id)
     {
         if (!_context.Profiles.Any(e => e.Id == id))
         {
@@ -93,8 +93,8 @@ public class TestController : ControllerBase
         };
         _context.questions.Add(question);
         await _context.SaveChangesAsync();
-        QuestionDTO questionDTO = question.GetDTO();
-        return questionDTO;
+        QuestionDto questionDto = question.GetDto();
+        return questionDto;
     }
 
     [HttpPost("answer")]
@@ -107,7 +107,7 @@ public class TestController : ControllerBase
             return NotFound();
         }
 
-        if (question.UserId = CurrentUser())
+        if (question.UserId == CurrentUser())
         {
             return Unauthorized();
         }

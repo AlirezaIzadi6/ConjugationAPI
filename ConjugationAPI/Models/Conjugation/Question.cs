@@ -13,12 +13,11 @@ public class Question
     public bool HasBeenAnswered { get; set; } = false;
     public DateTime TimeStamp { get; set; } = DateTime.Now;
 
-    public QuestionDTO GetDTO()
+    public QuestionDto GetDto()
     {
-        return new QuestionDTO()
+        return new QuestionDto()
         {
             Id = Id,
-            UserId = UserId,
             infinitive = Infinitive,
             Mood = Mood,
             Person = Person
