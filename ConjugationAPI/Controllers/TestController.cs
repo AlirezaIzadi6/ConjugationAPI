@@ -99,16 +99,17 @@ public class TestController : ControllerBase
 
     [HttpPost("answer")]
     [Authorize]
-    public async Task<ActionResult> Examine(Answer answer)
+    public async Task<ActionResult> Examine(AnswerDto answerDto)
     {
-        if (!(answer.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)))
-        {
-            return Unauthorized();
-        }
-        Question? question = _context.questions.Find(answer.QuestionId);
+        Question? question = _context.questions.Find(answerDto.QuestionId);
         if (question == null)
         {
             return NotFound();
+        }
+
+        if (question.UserId = CurrentUser())
+        {
+            return Unauthorized();
         }
 
         if (question.HasBeenAnswered)
@@ -116,7 +117,14 @@ public class TestController : ControllerBase
             return BadRequest("This question has previously been answered by you.");
         }
 
-        if (!(answer.AnswerText == question.Answer))
+        Answer newAnswer = new()
+        {
+            UserId = CurrentUser(),
+            QuestionId = answerDto.QuestionId,
+            AnswerText = answerDto.AnswerText
+        };
+        _context.answers.Add(newAnswer);
+        if (!(answerDto.AnswerText == question.Answer))
         {
             return Ok("wrong");
         }
@@ -124,6 +132,7 @@ public class TestController : ControllerBase
         question.HasBeenAnswered = true;
         _context.Entry(question).State = EntityState.Modified;
         await _context.SaveChangesAsync();
+
         MyUser? currentUser = _applicationDbContext.Users.Find(CurrentUser());
         currentUser.Score += 5;
         _applicationDbContext.Entry(currentUser).State = EntityState.Modified;
