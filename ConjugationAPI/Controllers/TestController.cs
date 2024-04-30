@@ -50,7 +50,11 @@ public class TestController : ControllerBase
             moodAndTense = moods[rand.Next(0, moods.Length)];
             mood = moodAndTense.Split('-')[0];
             tense = moodAndTense.Split('-')[1];
-            Conjugation conjugation = _context.conjugations.First(e => e.Infinitive == infinitive && e.Mood == mood && e.Tense == tense);
+            Conjugation conjugation = _context.conjugations.FirstOrDefault(e => e.Infinitive == infinitive && e.Mood == mood && e.Tense == tense);
+            if (conjugation == null)
+            {
+                continue;
+            }
             person = persons[rand.Next(0, persons.Length)];
             switch(person)
             {
@@ -107,7 +111,7 @@ public class TestController : ControllerBase
             return NotFound();
         }
 
-        if (question.UserId == CurrentUser())
+        if (question.UserId != CurrentUser())
         {
             return Unauthorized();
         }
