@@ -14,6 +14,18 @@ public class Profile
     public string Infinitives {  get; set; } = string.Empty;
     public string Persons {  get; set; } = string.Empty;
 
+    public ProfileDto GetDto()
+    {
+        return new ProfileDto()
+        {
+            Id = Id,
+            Name = Name,
+            Moods = Moods,
+            Infinitives = Infinitives,
+            Persons = Persons
+        };
+    }
+
     public bool CheckUser(ClaimsPrincipal user)
     {
         if (this.UserId == user.FindFirstValue(ClaimTypes.NameIdentifier))
