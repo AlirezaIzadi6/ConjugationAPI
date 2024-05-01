@@ -137,6 +137,7 @@ public class ProfilesController : ControllerBase
 
     private bool InfinitivesIsValid(string value)
     {
+        Console.WriteLine(value);
         if (value == "all")
         {
             return true;
@@ -154,14 +155,22 @@ public class ProfilesController : ControllerBase
 
     private bool MoodsIsValid(string value)
     {
+        Console.WriteLine(value);
         if (value == "all")
         {
             return true;
         }
         string[] moods = value.Split(',');
-        foreach (var mood in moods)
+        foreach (var moodAndTense in moods)
         {
-            if (!_context.conjugations.Any(e => e.Mood == mood))
+            string[] moodParsed = moodAndTense.Split('-');
+            if (moodParsed.Length != 2)
+            {
+                return false;
+            }
+            string mood = moodParsed[0];
+            string tense = moodParsed[1];
+            if (!_context.conjugations.Any(e => e.Mood == mood && e.Tense == tense))
             {
                 return false;
             }
@@ -171,6 +180,7 @@ public class ProfilesController : ControllerBase
 
     private bool PersonsIsValid(string value)
     {
+        Console.WriteLine(value);
         if (value == "all")
         {
             return true;
@@ -179,7 +189,7 @@ public class ProfilesController : ControllerBase
         List<string> validPersons = new() { "1s", "2s", "3s", "1p", "2p", "3p" };
         foreach (var person in persons)
         {
-            if (!validPersons.Contains(value))
+            if (!validPersons.Contains(person))
             {
                 return false;
             }
