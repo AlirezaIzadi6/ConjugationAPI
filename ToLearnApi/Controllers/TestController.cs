@@ -125,9 +125,8 @@ public class TestController : ControllerBase
 
         Answer newAnswer = new()
         {
-            UserId = CurrentUser(),
-            QuestionId = answerDto.QuestionId,
-            AnswerText = answerDto.AnswerText
+            AnswerText = answerDto.AnswerText,
+            Question = question
         };
         _context.answers.Add(newAnswer);
         if (!(answerDto.AnswerText == question.Answer))
