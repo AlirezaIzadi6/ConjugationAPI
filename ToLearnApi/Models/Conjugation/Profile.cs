@@ -26,6 +26,15 @@ public class Profile
         };
     }
 
+    public void UpdateWithDto(ProfileDto dto)
+    {
+        this.Id = dto.Id;
+        this.Name = dto.Name;
+        this.Moods = dto.Moods;
+        this.Infinitives = dto.Infinitives;
+        this.Persons = dto.Persons;
+    }
+
     public bool CheckUser(ClaimsPrincipal user)
     {
         if (this.UserId == user.FindFirstValue(ClaimTypes.NameIdentifier))
