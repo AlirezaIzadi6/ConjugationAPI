@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ConjugationAPI.Models.Conjugation;
 
-namespace ConjugationAPI.Models;
+namespace ConjugationAPI.Contexts;
 
 public class ConjugationContext : DbContext
 {

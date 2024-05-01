@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ConjugationAPI.Models;
+using ConjugationAPI.Contexts;
+using ConjugationAPI.Models.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 

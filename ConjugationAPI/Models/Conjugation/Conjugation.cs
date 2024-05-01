@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
+namespace ConjugationAPI.Models.Conjugation;
+
 public class Conjugation
 {
     public int Id { get; set; }

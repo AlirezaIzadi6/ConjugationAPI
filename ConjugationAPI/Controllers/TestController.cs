@@ -1,12 +1,14 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Packaging.Signing;
-using ConjugationAPI.Models;
-using Microsoft.AspNetCore.Identity;
+using ConjugationAPI.Contexts;
+using ConjugationAPI.Models.Conjugation;
+using ConjugationAPI.Models.Identity;
 
 namespace ConjugationAPI.Controllers;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace ConjugationAPI.Models;
+namespace ConjugationAPI.Models.Identity;
 
 public class MyUser : IdentityUser
 {

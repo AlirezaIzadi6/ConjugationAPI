@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace ConjugationAPI.Migrations
+namespace ConjugationAPI.Migrations.Conjugation
 {
     /// <inheritdoc />
     public partial class AddAnswerToQuestion : Migration

@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ConjugationAPI.Models;
+using ConjugationAPI.Contexts;
+using ConjugationAPI.Models.Conjugation;
 
 namespace ConjugationAPI.Controllers;
 

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ConjugationAPI.Models;
+namespace ConjugationAPI.Models.Conjugation;
 
 public class Question
 {

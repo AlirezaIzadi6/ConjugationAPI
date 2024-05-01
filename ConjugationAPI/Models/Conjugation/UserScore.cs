@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace ConjugationAPI.Models;
+namespace ConjugationAPI.Models.Conjugation;
 
 public class UserScore
 {
