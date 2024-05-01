@@ -24,16 +24,23 @@ public class ProfilesController : ControllerBase
     }
 
     // GET: api/Profiles
-    [HttpGet, Authorize]
-    public async Task<ActionResult<IEnumerable<Profile>>> GetProfiles()
+    [HttpGet]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<ProfileDto>>> GetProfiles()
     {
-        return await _context.Profiles.Where(e => e.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToListAsync();
+        var profiles = await _context.Profiles.Where(e => e.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToListAsync();
+        List<ProfileDto> profileDtos = new();
+        foreach (var profile in profiles)
+        {
+            profileDtos.Add(profile.GetDto());
+        }
+        return Ok(profileDtos);
     }
 
     // GET: api/Profiles/5
     [HttpGet("{id}")]
     [Authorize]
-    public async Task<ActionResult<Profile>> GetProfile(int id)
+    public async Task<ActionResult<ProfileDto>> GetProfile(int id)
     {
         var profile = await _context.Profiles.FindAsync(id);
 
@@ -46,15 +53,17 @@ public class ProfilesController : ControllerBase
         {
             return Unauthorized();
         }
-        return profile;
+        return profile.GetDto();
     }
 
     // PUT: api/Profiles/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> PutProfile(int id, Profile profile)
+    public async Task<IActionResult> PutProfile(int id, ProfileDto profileDto)
     {
+        var profile = _context.Profiles.Find(id);
+        profile.UpdateWithDto(profileDto);
         if (id != profile.Id ||
             !(InfinitivesIsValid(profile.Infinitives) &&
             MoodsIsValid(profile.Moods) &&
@@ -65,7 +74,7 @@ public class ProfilesController : ControllerBase
 
         if (!profile.CheckUser(User))
         {
-            return Unauthorized(profile);
+            return Unauthorized(profileDto);
         }
 
         _context.Entry(profile).State = EntityState.Modified;
@@ -93,8 +102,9 @@ public class ProfilesController : ControllerBase
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<Profile>> PostProfile(Profile profile)
+    public async Task<ActionResult<ProfileDto>> PostProfile(ProfileDto profileDto)
     {
+        var profile = profileDto.GetProfile(User.FindFirstValue(ClaimTypes.NameIdentifier));
         if (InfinitivesIsValid(profile.Infinitives) &&
             MoodsIsValid(profile.Moods) &&
             PersonsIsValid(profile.Persons))
@@ -103,7 +113,7 @@ public class ProfilesController : ControllerBase
             _context.Profiles.Add(profile);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProfile", new { id = profile.Id }, profile);
+            return CreatedAtAction("GetProfile", new { id = profile.Id }, profileDto);
         }
         return BadRequest();
     }
@@ -137,7 +147,6 @@ public class ProfilesController : ControllerBase
 
     private bool InfinitivesIsValid(string value)
     {
-        Console.WriteLine(value);
         if (value == "all")
         {
             return true;
@@ -155,7 +164,6 @@ public class ProfilesController : ControllerBase
 
     private bool MoodsIsValid(string value)
     {
-        Console.WriteLine(value);
         if (value == "all")
         {
             return true;
@@ -180,7 +188,6 @@ public class ProfilesController : ControllerBase
 
     private bool PersonsIsValid(string value)
     {
-        Console.WriteLine(value);
         if (value == "all")
         {
             return true;
