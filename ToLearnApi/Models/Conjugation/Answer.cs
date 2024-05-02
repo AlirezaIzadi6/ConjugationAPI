@@ -10,7 +10,7 @@ public class Answer
     public int QuestionId { get; set; } = 0;
     public string AnswerText { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; } = DateTime.Now;
-    public Question Question { get; init; }
+    public Question Question { get; init; } = new();
 
     public AnswerDto GetDto()
     {

@@ -3,10 +3,10 @@
 public class ProfileDto
 {
     public int Id { get; set; }
-    public string Name { get; set; }
-    public string Moods { get; set; }
-    public string Infinitives { get; set; }
-    public string Persons {  get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Moods { get; set; } = string.Empty;
+    public string Infinitives { get; set; } = string.Empty;
+    public string Persons { get; set; } = string.Empty;
 
     public Profile GetProfile(string userId)
     {

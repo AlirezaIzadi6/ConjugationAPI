@@ -139,9 +139,12 @@ public class TestController : MyController
         await _context.SaveChangesAsync();
 
         MyUser? currentUser = _applicationDbContext.Users.Find(CurrentUser(User));
-        currentUser.Score += 5;
-        _applicationDbContext.Entry(currentUser).State = EntityState.Modified;
-        await _applicationDbContext.SaveChangesAsync();
+        if (currentUser != null)
+        {
+            currentUser.Score += 5;
+            _applicationDbContext.Entry(currentUser).State = EntityState.Modified;
+            await _applicationDbContext.SaveChangesAsync();
+        }
 
         return Ok("right");
     }
