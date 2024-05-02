@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,14 +26,20 @@ public class DecksController : MyController
 
     // GET: api/Decks
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Deck>>> Getdecks()
+    public async Task<ActionResult<IEnumerable<DeckDto>>> Getdecks()
     {
-        return await _context.decks.ToListAsync();
+        var decks = await _context.decks.ToListAsync();
+        List<DeckDto> deckDtos = new List<DeckDto>();
+        foreach (var deck in decks)
+        {
+            deckDtos.Add(deck.GetDto());
+        }
+        return Ok(deckDtos);
     }
 
     // GET: api/Decks/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Deck>> GetDeck(int id)
+    public async Task<ActionResult<DeckDto>> GetDeck(int id)
     {
         var deck = await _context.decks.FindAsync(id);
 
@@ -41,19 +48,25 @@ public class DecksController : MyController
             return NotFound();
         }
 
-        return deck;
+        return deck.GetDto();
     }
 
     // PUT: api/Decks/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutDeck(int id, Deck deck)
+    public async Task<IActionResult> PutDeck(int id, DeckDto deckDto)
     {
+        var deck = _context.decks.Find(deckDto.Id);
+        if (deck == null)
+        {
+            return NotFound(id);
+        }
         if (id != deck.Id)
         {
             return BadRequest();
         }
 
+        deck.UpdateWithDto(deckDto);
         _context.Entry(deck).State = EntityState.Modified;
 
         try
@@ -78,12 +91,13 @@ public class DecksController : MyController
     // POST: api/Decks
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<Deck>> PostDeck(Deck deck)
+    public async Task<ActionResult<DeckDto>> PostDeck(DeckDto deckDto)
     {
+        Deck deck = deckDto.GetDeck(CurrentUser(User));
         _context.decks.Add(deck);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction("GetDeck", new { id = deck.Id }, deck);
+        return CreatedAtAction("GetDeck", new { id = deck.Id }, deck.GetDto());
     }
 
     // DELETE: api/Decks/5

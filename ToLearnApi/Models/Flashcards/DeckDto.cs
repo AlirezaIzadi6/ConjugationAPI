@@ -2,27 +2,20 @@
 
 namespace ToLearnApi.Models.Flashcards;
 
-public class Deck
+public class DeckDto
 {
     public int Id { get; set; }
-    public string Creator { get; set; } = string.Empty;
+    [Required]
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public ICollection<Unit> Units {  get; } = new List<Unit>();
 
-    public DeckDto GetDto()
+    public Deck GetDeck(string UserId)
     {
-        return new DeckDto()
+        return new Deck()
         {
-            Id = Id,
+            Creator = UserId,
             Title = Title,
             Description = Description
         };
-    }
-
-    public void UpdateWithDto(DeckDto dto)
-    {
-        Title = dto.Title;
-        Description = dto.Description;
     }
 }
