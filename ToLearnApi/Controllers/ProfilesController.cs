@@ -14,7 +14,7 @@ namespace ToLearnApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ProfilesController : ControllerBase
+public class ProfilesController : MyController
 {
     private readonly ConjugationContext _context;
 
@@ -63,6 +63,10 @@ public class ProfilesController : ControllerBase
     public async Task<IActionResult> PutProfile(int id, ProfileDto profileDto)
     {
         var profile = _context.Profiles.Find(id);
+        if (profile == null)
+        {
+            return NotFound();
+        }
         profile.UpdateWithDto(profileDto);
         if (id != profile.Id ||
             !(InfinitivesIsValid(profile.Infinitives) &&
@@ -104,12 +108,12 @@ public class ProfilesController : ControllerBase
     [Authorize]
     public async Task<ActionResult<ProfileDto>> PostProfile(ProfileDto profileDto)
     {
-        var profile = profileDto.GetProfile(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var profile = profileDto.GetProfile(CurrentUser(User));
         if (InfinitivesIsValid(profile.Infinitives) &&
             MoodsIsValid(profile.Moods) &&
             PersonsIsValid(profile.Persons))
         {
-            profile.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            profile.UserId = CurrentUser(User);
             _context.Profiles.Add(profile);
             await _context.SaveChangesAsync();
 

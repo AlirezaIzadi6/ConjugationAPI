@@ -14,7 +14,7 @@ namespace ToLearnApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TestController : ControllerBase
+public class TestController : MyController
 {
     private readonly ConjugationContext _context;
     private readonly ApplicationDbContext _applicationDbContext;
@@ -52,7 +52,7 @@ public class TestController : ControllerBase
             moodAndTense = moods[rand.Next(0, moods.Length)];
             mood = moodAndTense.Split('-')[0];
             tense = moodAndTense.Split('-')[1];
-            Conjugation conjugation = _context.conjugations.FirstOrDefault(e => e.Infinitive == infinitive && e.Mood == mood && e.Tense == tense);
+            Conjugation? conjugation = _context.conjugations.FirstOrDefault(e => e.Infinitive == infinitive && e.Mood == mood && e.Tense == tense);
             if (conjugation == null)
             {
                 continue;
@@ -90,7 +90,7 @@ public class TestController : ControllerBase
         }
         Question question = new()
         {
-            UserId = CurrentUser(),
+            UserId = CurrentUser(User),
             Infinitive = infinitive,
             Mood = moodAndTense,
             Person = person,
@@ -113,7 +113,7 @@ public class TestController : ControllerBase
             return NotFound();
         }
 
-        if (question.UserId != CurrentUser())
+        if (question.UserId != CurrentUser(User))
         {
             return Unauthorized();
         }
@@ -138,17 +138,11 @@ public class TestController : ControllerBase
         _context.Entry(question).State = EntityState.Modified;
         await _context.SaveChangesAsync();
 
-        MyUser? currentUser = _applicationDbContext.Users.Find(CurrentUser());
+        MyUser? currentUser = _applicationDbContext.Users.Find(CurrentUser(User));
         currentUser.Score += 5;
         _applicationDbContext.Entry(currentUser).State = EntityState.Modified;
         await _applicationDbContext.SaveChangesAsync();
 
         return Ok("right");
-    }
-
-    private string CurrentUser()
-    {
-        string? currentUser = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return currentUser == null ? string.Empty : currentUser;
     }
 }
