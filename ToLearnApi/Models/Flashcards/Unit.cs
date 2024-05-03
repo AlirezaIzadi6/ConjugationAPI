@@ -9,11 +9,7 @@ public class Unit
     public string Description { get; set; } = string.Empty;
     [Required]    
     public int DeckId { get; set; }
-    public Deck Deck { get; set; } = new()
-    {
-        Title = "New deck",
-        Description = string.Empty
-    };
+    public Deck Deck { get; set; }
     public List<Card> Cards { get; } = new();
 
     public UnitDto GetDto()
