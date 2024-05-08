@@ -15,6 +15,7 @@ public class Deck
         return new DeckDto()
         {
             Id = Id,
+            Creator = Creator,
             Title = Title,
             Description = Description
         };
