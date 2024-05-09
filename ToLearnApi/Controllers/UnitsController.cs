@@ -64,6 +64,11 @@ public class UnitsController : MyController
         }
 
         unit.UpdateWithDto(unitDto);
+        if (!IsUnique(unit))
+        {
+            return BadRequest("This name already exists.");
+        }
+
         _context.Entry(unit).State = EntityState.Modified;
 
         try
@@ -95,6 +100,11 @@ public class UnitsController : MyController
         {
             return BadRequest(unitDto);
         }
+
+        if (!IsUnique(unit))
+        {
+            return BadRequest("This name already exists.");
+        }
         _context.units.Add(unit);
         await _context.SaveChangesAsync();
 
@@ -120,5 +130,10 @@ public class UnitsController : MyController
     private bool UnitExists(int id)
     {
         return _context.units.Any(e => e.Id == id);
+    }
+
+    private bool IsUnique(Unit unit)
+    {
+        return !_context.units.Any(e => e.Name == unit.Name && e.DeckId == unit.DeckId);
     }
 }

@@ -67,6 +67,11 @@ public class DecksController : MyController
         }
 
         deck.UpdateWithDto(deckDto);
+        if (!IsUnique(deck))
+        {
+            return BadRequest("This name already exists in your created decks");
+        }
+
         _context.Entry(deck).State = EntityState.Modified;
 
         try
@@ -94,6 +99,10 @@ public class DecksController : MyController
     public async Task<ActionResult<DeckDto>> PostDeck(DeckDto deckDto)
     {
         Deck deck = deckDto.GetDeck(CurrentUser(User));
+        if (!IsUnique(deck))
+        {
+            return BadRequest("This name already exists in your created decks.");
+        }
         _context.decks.Add(deck);
         await _context.SaveChangesAsync();
 
@@ -119,5 +128,10 @@ public class DecksController : MyController
     private bool DeckExists(int id)
     {
         return _context.decks.Any(e => e.Id == id);
+    }
+
+    private bool IsUnique(Deck deck)
+    {
+        return !_context.decks.Any(e => e.Creator == deck.Creator && e.Title == deck.Title);
     }
 }
