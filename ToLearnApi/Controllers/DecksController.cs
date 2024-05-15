@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToLearnApi.Contexts;
 using ToLearnApi.Models.Flashcards;
+using ToLearnApi.Models.General;
 
 namespace ToLearnApi.Controllers;
 
@@ -63,13 +64,13 @@ public class DecksController : MyController
         }
         if (id != deck.Id)
         {
-            return BadRequest();
+            return BadRequest(new Error("Wrong Id", "You are requesting a different id than the deck you are trying to modify."));
         }
 
         deck.UpdateWithDto(deckDto);
         if (!IsUnique(deck))
         {
-            return BadRequest("This name already exists in your created decks");
+            return BadRequest(new Error("Duplicate name", "This name already exists in your created decks"));
         }
 
         _context.Entry(deck).State = EntityState.Modified;
@@ -101,7 +102,7 @@ public class DecksController : MyController
         Deck deck = deckDto.GetDeck(CurrentUser(User));
         if (!IsUnique(deck))
         {
-            return BadRequest("This name already exists in your created decks.");
+            return BadRequest(new Error("Duplicate name", "This name already exists in your created decks."));
         }
         _context.decks.Add(deck);
         await _context.SaveChangesAsync();

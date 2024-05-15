@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToLearnApi.Contexts;
 using ToLearnApi.Models.Flashcards;
+using ToLearnApi.Models.General;
 
 namespace ToLearnApi.Controllers;
 
@@ -60,13 +61,13 @@ public class UnitsController : MyController
         }
         if (id != unit.Id)
         {
-            return BadRequest();
+            return BadRequest(new Error("Wrong Id", "You are requesting a different id than the unit you are trying to modify."));
         }
 
         unit.UpdateWithDto(unitDto);
         if (!IsUnique(unit))
         {
-            return BadRequest("This name already exists.");
+            return BadRequest(new Error("Duplicate name", "This name already exists."));
         }
 
         _context.Entry(unit).State = EntityState.Modified;
@@ -103,7 +104,7 @@ public class UnitsController : MyController
 
         if (!IsUnique(unit))
         {
-            return BadRequest("This name already exists.");
+            return BadRequest(new Error("Duplicate name", "This name already exists."));
         }
         _context.units.Add(unit);
         await _context.SaveChangesAsync();

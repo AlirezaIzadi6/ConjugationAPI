@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToLearnApi.Contexts;
 using ToLearnApi.Models.Conjugation;
+using ToLearnApi.Models.General;
 
 namespace ToLearnApi.Controllers;
 
@@ -68,12 +69,22 @@ public class ProfilesController : MyController
             return NotFound();
         }
         profile.UpdateWithDto(profileDto);
-        if (id != profile.Id ||
-            !(InfinitivesIsValid(profile.Infinitives) &&
-            MoodsIsValid(profile.Moods) &&
-            PersonsIsValid(profile.Persons)))
+
+        if (id != profile.Id)
         {
-            return BadRequest();
+            return BadRequest(new Error("Wrong Id", "You are requesting a different id than the profile you are trying to modify."));
+        }
+        if (!InfinitivesIsValid(profile.Infinitives))
+        {
+            return BadRequest(new Error("Infinitives not found", "You have entered some invalid/not-existing infinitive(s). Make sure you have separated your infinitives with a comma and check spelling errors and try again."));
+        }
+        if (!MoodsIsValid(profile.Moods))
+        {
+            return BadRequest(new Error("Wrong mood/tenses", "Check for moods and/or tenses errors and try again."));
+        }
+        if (!PersonsIsValid(profile.Persons))
+        {
+            return BadRequest(new Error("Wrong persons", "You have requested invalid persons."));
         }
 
         if (!profile.CheckUser(User))
@@ -109,17 +120,25 @@ public class ProfilesController : MyController
     public async Task<ActionResult<ProfileDto>> PostProfile(ProfileDto profileDto)
     {
         var profile = profileDto.GetProfile(CurrentUser(User));
-        if (InfinitivesIsValid(profile.Infinitives) &&
-            MoodsIsValid(profile.Moods) &&
-            PersonsIsValid(profile.Persons))
-        {
-            profile.UserId = CurrentUser(User);
-            _context.Profiles.Add(profile);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProfile", new { id = profile.Id }, profileDto);
+        if (!InfinitivesIsValid(profile.Infinitives))
+        {
+            return BadRequest(new Error("Infinitives not found", "You have entered some invalid/not-existing infinitive(s). Make sure you have separated your infinitives with a comma and check spelling errors and try again."));
         }
-        return BadRequest();
+        if (!MoodsIsValid(profile.Moods))
+        {
+            return BadRequest(new Error("Wrong mood/tenses", "Check for moods and/or tenses errors and try again."));
+        }
+        if (!PersonsIsValid(profile.Persons))
+        {
+            return BadRequest(new Error("Wrong persons", "You have requested invalid persons."));
+        }
+
+        profile.UserId = CurrentUser(User);
+        _context.Profiles.Add(profile);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction("GetProfile", new { id = profile.Id }, profileDto);
     }
 
     // DELETE: api/Profiles/5

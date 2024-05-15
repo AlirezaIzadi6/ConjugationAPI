@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using NuGet.Packaging.Signing;
 using ToLearnApi.Contexts;
 using ToLearnApi.Models.Conjugation;
+using ToLearnApi.Models.General;
 using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Controllers;
@@ -120,7 +121,7 @@ public class TestController : MyController
 
         if (question.HasBeenAnswered)
         {
-            return BadRequest("This question has previously been answered by you.");
+            return BadRequest(new Error("Not accepted", "You have answered this question before."));
         }
 
         Answer newAnswer = new()

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToLearnApi.Contexts;
 using ToLearnApi.Models.Flashcards;
+using ToLearnApi.Models.General;
 
 namespace ToLearnApi.Controllers
 {
@@ -60,7 +61,7 @@ namespace ToLearnApi.Controllers
             }
             if (id != card.Id)
             {
-                return BadRequest();
+                return BadRequest(new Error("Wrong Id", "You are requesting a different id than the card you are trying to modify."));
             }
 
             card.UpdateWithDto(cardDto);
@@ -93,7 +94,7 @@ namespace ToLearnApi.Controllers
             var card = cardDto.GetCard();
             if (!_context.units.Any(e => e.Id == card.UnitId))
             {
-                return BadRequest();
+                return BadRequest(new Error("Wrong unit Id", "Unit with your requested Id has not found."));
             }
             _context.cards.Add(card);
             await _context.SaveChangesAsync();
