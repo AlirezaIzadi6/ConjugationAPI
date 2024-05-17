@@ -23,10 +23,10 @@ public class UnitsController : MyController
     }
 
     // GET: api/Units
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<UnitDto>>> Getunits()
+    [HttpGet("deck{id}")]
+    public async Task<ActionResult<IEnumerable<UnitDto>>> Getunits(int id)
     {
-        var units = await _context.units.ToListAsync();
+        var units = await _context.units.Where(e => e.DeckId == id).ToListAsync();
         List<UnitDto> unitDtos = new List<UnitDto>();
         foreach (var unit in units)
         {
