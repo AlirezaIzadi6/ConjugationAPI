@@ -64,8 +64,9 @@ public class UnitsController : MyController
             return BadRequest(new Error("Wrong Id", "You are requesting a different id than the unit you are trying to modify."));
         }
 
+        string oldName = unit.Name;
         unit.UpdateWithDto(unitDto);
-        if (!IsUnique(unit))
+        if (unit.Name != oldName && !IsUnique(unit))
         {
             return BadRequest(new Error("Duplicate name", "This name already exists."));
         }
