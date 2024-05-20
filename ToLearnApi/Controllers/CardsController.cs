@@ -23,10 +23,10 @@ namespace ToLearnApi.Controllers
         }
 
         // GET: api/Cards
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CardDto>>> Getcards()
+        [HttpGet("unit{id}")]
+        public async Task<ActionResult<IEnumerable<CardDto>>> Getcards(int id)
         {
-            var cards = await _context.cards.ToListAsync();
+            var cards = await _context.cards.Where(e => e.UnitId == id).ToListAsync();
             List<CardDto> cardDtos = new List<CardDto>();
             foreach (var card in cards)
             {
