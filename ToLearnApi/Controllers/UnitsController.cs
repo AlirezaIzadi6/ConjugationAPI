@@ -68,6 +68,38 @@ public class UnitsController : MyController
         return Ok(cardDtos);
     }
 
+    [HttpPut("{id}/editcards")]
+    public async Task<ActionResult> EditCards(int id, List<CardDto> cardDtos)
+    {
+        var unit = await _context.units.FindAsync(id);
+        if (unit == null)
+        {
+            return NotFound();
+        }
+
+        var cards = await _context.cards.Where(e => e.UnitId == id).ToListAsync();
+        foreach (var cardDto in cardDtos)
+        {
+            if (cardDto.UnitId != id)
+            {
+                continue;
+            }
+            var card = cards.Find(e =>  e.Id == cardDto.Id);
+            if (card == null)
+            {
+                var newCard = cardDto.GetCard();
+                _context.cards.Add(newCard);
+            }
+            else
+            {
+                card.UpdateWithDto(cardDto);
+                _context.Entry(card).State = EntityState.Modified;
+            }
+        }
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
     // PUT: api/Units/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
