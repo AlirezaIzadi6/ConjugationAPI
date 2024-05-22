@@ -49,6 +49,25 @@ public class UnitsController : MyController
         return unit.GetDto();
     }
 
+    [HttpGet("{id}/getcards")]
+    public async Task<ActionResult<IEnumerable<Card>>> GetCards(int id)
+    {
+        var unit = await _context.units.FindAsync(id);
+
+        if (unit == null)
+        {
+            return NotFound();
+        }
+
+        var cards = await _context.cards.Where(e => e.UnitId  == id).ToListAsync();
+        var cardDtos = new List<CardDto>();
+        foreach (var card in cards)
+        {
+            cardDtos.Add(card.GetDto());
+        }
+        return Ok(cardDtos);
+    }
+
     // PUT: api/Units/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
