@@ -8,6 +8,7 @@ public class Card
     public string Question { get; set; } = string.Empty;
     public string Answer { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public int OrderNumber { get; set; }
     [Required]
     public int UnitId { get; set; }
     public Unit Unit { get; set; }

@@ -96,6 +96,8 @@ namespace ToLearnApi.Controllers
             {
                 return BadRequest(new Error("Wrong unit Id", "Unit with your requested Id has not found."));
             }
+            var previousCardsCount = await _context.cards.CountAsync(e => e.UnitId  == card.UnitId);
+            card.OrderNumber = previousCardsCount+1;
             _context.cards.Add(card);
             await _context.SaveChangesAsync();
 

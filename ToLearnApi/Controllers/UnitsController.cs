@@ -158,6 +158,9 @@ public class UnitsController : MyController
         {
             return BadRequest(new Error("Duplicate name", "This name already exists."));
         }
+
+        int previousUnitsCount = await _context.units.CountAsync(e => e.DeckId  == unit.DeckId);
+        unit.OrderNumber = previousUnitsCount+1;
         _context.units.Add(unit);
         await _context.SaveChangesAsync();
 
