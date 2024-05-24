@@ -21,6 +21,7 @@ public class Card
             Question = Question,
             Answer = Answer,
             Description = Description,
+            OrderNumber = OrderNumber,
             UnitId = UnitId
         };
     }

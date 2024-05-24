@@ -93,7 +93,7 @@ public class UnitsController : MyController
             else
             {
                 card.UpdateWithDto(cardDto);
-                _context.Entry(card).State = EntityState.Modified;
+                _context.Entry(unit).State = EntityState.Modified;
             }
         }
         await _context.SaveChangesAsync();
@@ -116,7 +116,14 @@ public class UnitsController : MyController
         }
 
         string oldName = unit.Name;
+        int oldOrderNumber = unit.OrderNumber;
         unit.UpdateWithDto(unitDto);
+        bool changeOrder = await ChangeOrder(oldOrderNumber, unit.OrderNumber);
+        if (!changeOrder)
+        {
+            unit.OrderNumber = oldOrderNumber;
+        }
+
         if (unit.Name != oldName && !IsUnique(unit))
         {
             return BadRequest(new Error("Duplicate name", "This name already exists."));
@@ -191,5 +198,80 @@ public class UnitsController : MyController
     private bool IsUnique(Unit unit)
     {
         return !_context.units.Any(e => e.Name == unit.Name && e.DeckId == unit.DeckId);
+    }
+
+
+    private async Task<bool> ChangeOrder(int start, int target)
+    {
+        if (target == start)
+        {
+            return true;
+        }
+
+        if (target < 0 || start <= 0)
+        {
+            return false;
+        }
+
+        if (target == 0)
+        {
+            var units = await _context.units.Where(e => e.OrderNumber > target).ToListAsync();
+            foreach (var unit in units)
+            {
+                unit.OrderNumber--;
+                _context.Entry(unit).State = EntityState.Modified;
+            }
+        }
+
+        else if (target > start)
+        {
+            var targetUnit = await _context.units.FirstOrDefaultAsync(e => e.OrderNumber == start);
+            if (targetUnit == null)
+            {
+                return false;
+            }
+            targetUnit.OrderNumber = target;
+
+            var units = await _context.units.Where(e => e.OrderNumber > target).ToListAsync();
+            foreach (var unit in units)
+            {
+                if (unit.Id == targetUnit.Id)
+                {
+                    continue;
+                }
+                unit.OrderNumber--;
+                _context.Entry(unit).State = EntityState.Modified;
+            }
+        }
+
+        else if (target < start)
+        {
+            var targetUnit = await _context.units.FirstOrDefaultAsync(e => e.OrderNumber == start);
+            if (targetUnit == null)
+            {
+                return false;
+            }
+            targetUnit.OrderNumber = target;
+
+            var units = await _context.units.Where(e => e.OrderNumber < target).ToListAsync();
+            foreach (var unit in units)
+            {
+                if (unit.Id == targetUnit.Id)
+                {
+                    continue;
+                }
+                unit.OrderNumber++;
+                _context.Entry(unit).State = EntityState.Modified;
+            }
+        }
+        try
+        {
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

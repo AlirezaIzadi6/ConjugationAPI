@@ -64,7 +64,13 @@ namespace ToLearnApi.Controllers
                 return BadRequest(new Error("Wrong Id", "You are requesting a different id than the card you are trying to modify."));
             }
 
+            int oldOrderNumber = card.OrderNumber;
             card.UpdateWithDto(cardDto);
+            bool changeOrder = await ChangeOrder(oldOrderNumber, card.OrderNumber);
+            if (!changeOrder)
+            {
+                card.OrderNumber = oldOrderNumber;
+            }
             _context.Entry(card).State = EntityState.Modified;
 
             try
@@ -123,6 +129,80 @@ namespace ToLearnApi.Controllers
         private bool CardExists(int id)
         {
             return _context.cards.Any(e => e.Id == id);
+        }
+
+        private async Task<bool> ChangeOrder(int start, int target)
+        {
+            if (target== start)
+            {
+                return true;
+            }
+
+            if (target < 0 || start <= 0)
+            {
+                return false;
+            }
+
+            if (target == 0)
+            {
+                var cards = await _context.cards.Where(e => e.OrderNumber > target).ToListAsync();
+                foreach (var card in cards)
+                {
+                    card.OrderNumber--;
+                    _context.Entry(card).State = EntityState.Modified;
+                }
+            }
+
+            else if(target > start)
+            {
+                var targetCard = await _context.cards.FirstOrDefaultAsync(e => e.OrderNumber == start);
+                if (targetCard == null)
+                {
+                    return false;
+                }
+                targetCard.OrderNumber = target;
+
+                var cards = await _context.cards.Where(e => e.OrderNumber > target).ToListAsync();
+                foreach (var card in cards)
+                {
+                    if (card.Id == targetCard.Id)
+                    {
+                        continue;
+                    }
+                    card.OrderNumber--;
+                    _context.Entry(card).State = EntityState.Modified;
+                }
+            }
+
+            else if (target < start)
+            {
+                var targetCard = await _context.cards.FirstOrDefaultAsync(e => e.OrderNumber == start);
+                if (targetCard == null)
+                {
+                    return false;
+                }
+                targetCard.OrderNumber = target;
+
+                var cards = await _context.cards.Where(e => e.OrderNumber < target).ToListAsync();
+                foreach (var card in cards)
+                {
+                    if (card.Id == targetCard.Id)
+                    {
+                        continue;
+                    }
+                    card.OrderNumber++;
+                    _context.Entry(card).State = EntityState.Modified;
+                }
+            }
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

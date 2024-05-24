@@ -10,6 +10,7 @@ public class CardDto
     [Required]
     public string Answer { get; set; }
     public string Description { get; set; }
+    public int OrderNumber { get; set; }
     [Required]
     public int UnitId { get; set; }
 
@@ -20,6 +21,7 @@ public class CardDto
             Question = Question,
             Answer = Answer,
             Description = Description,
+            OrderNumber = OrderNumber,
             UnitId = UnitId
         };
     }

@@ -20,6 +20,7 @@ public class Unit
             Id = Id,
             Name = Name,
             Description = Description,
+            OrderNumber = OrderNumber,
             DeckId = DeckId
         };
     }
