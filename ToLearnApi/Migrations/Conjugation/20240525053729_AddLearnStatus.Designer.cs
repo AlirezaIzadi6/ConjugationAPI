@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ToLearnApi.Contexts;
 
@@ -11,9 +12,11 @@ using ToLearnApi.Contexts;
 namespace ToLearnApi.Migrations.Conjugation
 {
     [DbContext(typeof(ConjugationContext))]
-    partial class ConjugationContextModelSnapshot : ModelSnapshot
+    [Migration("20240525053729_AddLearnStatus")]
+    partial class AddLearnStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -293,9 +296,6 @@ namespace ToLearnApi.Migrations.Conjugation
 
                     b.Property<int>("DeckId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsInitialized")
-                        .HasColumnType("bit");
 
                     b.Property<int>("UnitId")
                         .HasColumnType("int");

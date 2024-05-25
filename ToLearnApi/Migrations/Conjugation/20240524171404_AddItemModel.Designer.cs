@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ToLearnApi.Contexts;
 
@@ -11,9 +12,11 @@ using ToLearnApi.Contexts;
 namespace ToLearnApi.Migrations.Conjugation
 {
     [DbContext(typeof(ConjugationContext))]
-    partial class ConjugationContextModelSnapshot : ModelSnapshot
+    [Migration("20240524171404_AddItemModel")]
+    partial class AddItemModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -281,32 +284,6 @@ namespace ToLearnApi.Migrations.Conjugation
                     b.HasIndex("CardId");
 
                     b.ToTable("items");
-                });
-
-            modelBuilder.Entity("ToLearnApi.Models.Flashcards.LearnAndReview.LearnStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DeckId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsInitialized")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("UnitId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("learnStatuses");
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Flashcards.Unit", b =>
