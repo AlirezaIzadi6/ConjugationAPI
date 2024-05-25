@@ -232,7 +232,7 @@ public class UnitsController : MyController
             }
             targetUnit.OrderNumber = target;
 
-            var units = await _context.units.Where(e => e.OrderNumber > target).ToListAsync();
+            var units = await _context.units.Where(e => e.OrderNumber > start && e.OrderNumber <= target).ToListAsync();
             foreach (var unit in units)
             {
                 if (unit.Id == targetUnit.Id)
@@ -253,7 +253,7 @@ public class UnitsController : MyController
             }
             targetUnit.OrderNumber = target;
 
-            var units = await _context.units.Where(e => e.OrderNumber < target).ToListAsync();
+            var units = await _context.units.Where(e => e.OrderNumber >= target && e.OrderNumber < start).ToListAsync();
             foreach (var unit in units)
             {
                 if (unit.Id == targetUnit.Id)

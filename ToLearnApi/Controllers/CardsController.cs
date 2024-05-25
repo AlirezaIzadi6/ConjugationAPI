@@ -162,7 +162,7 @@ namespace ToLearnApi.Controllers
                 }
                 targetCard.OrderNumber = target;
 
-                var cards = await _context.cards.Where(e => e.OrderNumber > target).ToListAsync();
+                var cards = await _context.cards.Where(e => e.OrderNumber > start && e.OrderNumber <= target).ToListAsync();
                 foreach (var card in cards)
                 {
                     if (card.Id == targetCard.Id)
@@ -183,7 +183,7 @@ namespace ToLearnApi.Controllers
                 }
                 targetCard.OrderNumber = target;
 
-                var cards = await _context.cards.Where(e => e.OrderNumber < target).ToListAsync();
+                var cards = await _context.cards.Where(e => e.OrderNumber >= target && e.OrderNumber < start).ToListAsync();
                 foreach (var card in cards)
                 {
                     if (card.Id == targetCard.Id)

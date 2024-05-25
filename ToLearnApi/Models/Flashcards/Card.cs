@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ToLearnApi.Models.Flashcards.LearnAndReview;
 
 namespace ToLearnApi.Models.Flashcards;
 
@@ -12,6 +13,7 @@ public class Card
     [Required]
     public int UnitId { get; set; }
     public Unit Unit { get; set; }
+    public List<Item> Items { get; }
 
     public CardDto GetDto()
     {
