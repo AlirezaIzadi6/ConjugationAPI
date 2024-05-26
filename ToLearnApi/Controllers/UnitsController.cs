@@ -79,7 +79,7 @@ public class UnitsController : MyController
             return NotFound();
         }
 
-        if (CurrentUser(User) != unit.Deck.Creator)
+        if (CurrentUser(User) != unit.Creator)
         {
             return Unauthorized();
         }
@@ -94,7 +94,7 @@ public class UnitsController : MyController
             var card = cards.Find(e =>  e.Id == cardDto.Id);
             if (card == null)
             {
-                var newCard = cardDto.GetCard();
+                var newCard = cardDto.GetCard(CurrentUser(User));
                 _context.cards.Add(newCard);
             }
             else
@@ -123,7 +123,7 @@ public class UnitsController : MyController
             return BadRequest(new Error("Wrong Id", "You are requesting a different id than the unit you are trying to modify."));
         }
 
-        if (CurrentUser(User) != unit.Deck.Creator)
+        if (CurrentUser(User) != unit.Creator)
         {
             return Unauthorized();
         }
@@ -169,10 +169,16 @@ public class UnitsController : MyController
     [Authorize]
     public async Task<ActionResult<UnitDto>> PostUnit(UnitDto unitDto)
     {
-        var unit = unitDto.GetUnit();
-        if (!_context.decks.Any(e => e.Id == unit.DeckId))
+        var deck = await _context.decks.FindAsync(unitDto.DeckId);
+        var unit = unitDto.GetUnit(CurrentUser(User));
+        if (deck == null)
         {
             return BadRequest(unitDto);
+        }
+
+        if (CurrentUser(User) != deck.Creator)
+        {
+            return Unauthorized();
         }
 
         if (!IsUnique(unit))
@@ -199,7 +205,7 @@ public class UnitsController : MyController
             return NotFound();
         }
 
-        if (CurrentUser(User) != unit.Deck.Creator)
+        if (CurrentUser(User) != unit.Creator)
         {
             return Unauthorized();
         }

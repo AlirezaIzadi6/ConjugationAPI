@@ -62,7 +62,7 @@ namespace ToLearnApi.Controllers
                 return BadRequest(new Error("Wrong Id", "You are requesting a different id than the card you are trying to modify."));
             }
 
-            if (CurrentUser(User) != card.Unit.Deck.Creator)
+            if (CurrentUser(User) != card.Creator)
             {
                 return Unauthorized();
             }
@@ -101,11 +101,18 @@ namespace ToLearnApi.Controllers
         [Authorize]
         public async Task<ActionResult<CardDto>> PostCard(CardDto cardDto)
         {
-            var card = cardDto.GetCard();
-            if (!_context.units.Any(e => e.Id == card.UnitId))
+            var card = cardDto.GetCard(CurrentUser(User));
+            var unit = await _context.units.FindAsync(cardDto.UnitId);
+            if (unit == null)
             {
                 return BadRequest(new Error("Wrong unit Id", "Unit with your requested Id has not found."));
             }
+
+            if (CurrentUser(User) != unit.Creator)
+            {
+                return Unauthorized();
+            }
+
             var previousCardsCount = await _context.cards.CountAsync(e => e.UnitId  == card.UnitId);
             card.OrderNumber = previousCardsCount+1;
             _context.cards.Add(card);
@@ -125,7 +132,7 @@ namespace ToLearnApi.Controllers
                 return NotFound();
             }
 
-            if (CurrentUser(User) != card.Unit.Deck.Creator)
+            if (CurrentUser(User) != card.Creator)
             {
                 return Unauthorized();
             }
