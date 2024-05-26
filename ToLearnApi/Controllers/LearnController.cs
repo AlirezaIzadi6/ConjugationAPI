@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Versioning;
@@ -20,6 +21,7 @@ public class LearnController : MyController
     }
 
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<CardDto>>> GetNewItem(int id, int count)
     {
         Unit learningUnit;

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
+﻿using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -55,6 +51,7 @@ public class DecksController : MyController
     // PUT: api/Decks/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> PutDeck(int id, DeckDto deckDto)
     {
         var deck = _context.decks.Find(deckDto.Id);
@@ -65,6 +62,11 @@ public class DecksController : MyController
         if (id != deck.Id)
         {
             return BadRequest(new Error("Wrong Id", "You are requesting a different id than the deck you are trying to modify."));
+        }
+
+        if (CurrentUser(User) != deck.Creator)
+        {
+            return Unauthorized();
         }
 
         deck.UpdateWithDto(deckDto);
@@ -97,6 +99,7 @@ public class DecksController : MyController
     // POST: api/Decks
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<DeckDto>> PostDeck(DeckDto deckDto)
     {
         Deck deck = deckDto.GetDeck(CurrentUser(User));
@@ -112,12 +115,18 @@ public class DecksController : MyController
 
     // DELETE: api/Decks/5
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteDeck(int id)
     {
         var deck = await _context.decks.FindAsync(id);
         if (deck == null)
         {
             return NotFound();
+        }
+
+        if (CurrentUser(User) != deck.Creator)
+        {
+            return Unauthorized();
         }
 
         _context.decks.Remove(deck);

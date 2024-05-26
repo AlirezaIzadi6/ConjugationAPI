@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +49,7 @@ namespace ToLearnApi.Controllers
         // PUT: api/Cards/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> PutCard(int id, CardDto cardDto)
         {
             var card = _context.cards.Find(id);
@@ -62,6 +60,11 @@ namespace ToLearnApi.Controllers
             if (id != card.Id)
             {
                 return BadRequest(new Error("Wrong Id", "You are requesting a different id than the card you are trying to modify."));
+            }
+
+            if (CurrentUser(User) != card.Unit.Deck.Creator)
+            {
+                return Unauthorized();
             }
 
             int oldOrderNumber = card.OrderNumber;
@@ -95,6 +98,7 @@ namespace ToLearnApi.Controllers
         // POST: api/Cards
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<CardDto>> PostCard(CardDto cardDto)
         {
             var card = cardDto.GetCard();
@@ -112,12 +116,18 @@ namespace ToLearnApi.Controllers
 
         // DELETE: api/Cards/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteCard(int id)
         {
             var card = await _context.cards.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
+            }
+
+            if (CurrentUser(User) != card.Unit.Deck.Creator)
+            {
+                return Unauthorized();
             }
 
             _context.cards.Remove(card);

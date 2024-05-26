@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -69,12 +70,18 @@ public class UnitsController : MyController
     }
 
     [HttpPut("{id}/editcards")]
+    [Authorize]
     public async Task<ActionResult> EditCards(int id, List<CardDto> cardDtos)
     {
         var unit = await _context.units.FindAsync(id);
         if (unit == null)
         {
             return NotFound();
+        }
+
+        if (CurrentUser(User) != unit.Deck.Creator)
+        {
+            return Unauthorized();
         }
 
         var cards = await _context.cards.Where(e => e.UnitId == id).ToListAsync();
@@ -103,6 +110,7 @@ public class UnitsController : MyController
     // PUT: api/Units/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> PutUnit(int id, UnitDto unitDto)
     {
         var unit = _context.units.Find(id);
@@ -113,6 +121,11 @@ public class UnitsController : MyController
         if (id != unit.Id)
         {
             return BadRequest(new Error("Wrong Id", "You are requesting a different id than the unit you are trying to modify."));
+        }
+
+        if (CurrentUser(User) != unit.Deck.Creator)
+        {
+            return Unauthorized();
         }
 
         string oldName = unit.Name;
@@ -153,6 +166,7 @@ public class UnitsController : MyController
     // POST: api/Units
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<UnitDto>> PostUnit(UnitDto unitDto)
     {
         var unit = unitDto.GetUnit();
@@ -176,12 +190,18 @@ public class UnitsController : MyController
 
     // DELETE: api/Units/5
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteUnit(int id)
     {
         var unit = await _context.units.FindAsync(id);
         if (unit == null)
         {
             return NotFound();
+        }
+
+        if (CurrentUser(User) != unit.Deck.Creator)
+        {
+            return Unauthorized();
         }
 
         _context.units.Remove(unit);
