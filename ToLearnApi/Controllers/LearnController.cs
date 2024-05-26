@@ -27,6 +27,11 @@ public class LearnController : MyController
 
         if (learnStatus != null)
         {
+            if (learnStatus.IsFinished)
+            {
+                return Ok("This deck does not have any new cards to learn.");
+            }
+
             learningUnit = await _context.units.FindAsync(learnStatus.UnitId);
             if (!learnStatus.IsInitialized)
             {
@@ -54,24 +59,39 @@ public class LearnController : MyController
         var itemsNotLearned = await _context.items.Where(e => e.Card.UnitId == learningUnit.Id && e.Learned == false)
             .OrderBy(e => e.Card.OrderNumber)
             .ToListAsync();
+        if (itemsNotLearned.Count() == 0)
+        {
+            var newLearningUnit = await _context.units.FirstOrDefaultAsync(e => e.OrderNumber == learningUnit.OrderNumber + 1);
+            string response;
+            if (newLearningUnit == null)
+            {
+                learnStatus.IsFinished = true;
+                response = "Deck completed";
+            }
+
+            else
+            {
+                learnStatus.UnitId = newLearningUnit.Id;
+                response = "Unit completed";
+            }
+            _context.Entry(learnStatus).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return Ok(response);
+        }
+
         foreach (var item in itemsNotLearned)
         {
-            if (cards.Count == count)
+            if (cards.Count() == count)
             {
                 break;
             }
-            cards.Add(item.Card);
+            var itemCard = await _context.cards.FindAsync(item.CardId);
+            cards.Add(itemCard);
         }
-
-        await _context.SaveChangesAsync();
 
         var cardDtos = new List<CardDto>();
         foreach (var card in cards)
         {
-            if (card== null)
-            {
-                Console.WriteLine("Card is null");
-            }
             cardDtos.Add(card.GetDto());
         }
 
