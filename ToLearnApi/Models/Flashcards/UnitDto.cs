@@ -12,10 +12,11 @@ public class UnitDto
     [Required]
     public int DeckId { get; set; }
 
-    public Unit GetUnit()
+    public Unit GetUnit(string userId)
     {
         return new Unit
         {
+            Creator = userId,
             Name = Name,
             Description = Description,
             OrderNumber = OrderNumber,

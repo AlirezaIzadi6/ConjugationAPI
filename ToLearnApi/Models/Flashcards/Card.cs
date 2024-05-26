@@ -6,6 +6,7 @@ namespace ToLearnApi.Models.Flashcards;
 public class Card
 {
     public int Id { get; set; }
+    public string Creator { get; set; }
     public string Question { get; set; } = string.Empty;
     public string Answer { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

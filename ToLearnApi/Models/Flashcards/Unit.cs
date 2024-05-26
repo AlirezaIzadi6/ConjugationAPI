@@ -5,6 +5,7 @@ namespace ToLearnApi.Models.Flashcards;
 public class Unit
 {
     public int Id { get; set;  }
+    public string Creator { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int OrderNumber { get; set; }

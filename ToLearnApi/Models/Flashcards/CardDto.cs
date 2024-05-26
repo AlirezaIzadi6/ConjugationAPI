@@ -14,10 +14,11 @@ public class CardDto
     [Required]
     public int UnitId { get; set; }
 
-    public Card GetCard()
+    public Card GetCard(string userId)
     {
         return new()
         {
+            Creator = userId,
             Question = Question,
             Answer = Answer,
             Description = Description,
