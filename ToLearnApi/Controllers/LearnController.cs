@@ -6,6 +6,7 @@ using NuGet.Versioning;
 using ToLearnApi.Contexts;
 using ToLearnApi.Models.Flashcards;
 using ToLearnApi.Models.Flashcards.LearnAndReview;
+using ToLearnApi.Models.General;
 
 namespace ToLearnApi.Controllers;
 
@@ -55,6 +56,8 @@ public class LearnController : MyController
             };
             _context.learnStatuses.Add(newLearnStatus);
             InitializeUnit(learningUnit, CurrentUser(User));
+            learnStatus.IsInitialized = true;
+            _context.Entry(learnStatus).State = EntityState.Modified;
         }
 
         var cards = new List<Card>();
@@ -74,12 +77,15 @@ public class LearnController : MyController
             else
             {
                 learnStatus.UnitId = newLearningUnit.Id;
+                learnStatus.IsInitialized = false;
                 response = "Unit completed";
             }
             _context.Entry(learnStatus).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return Ok(response);
         }
+
+        await _context.SaveChangesAsync();
 
         foreach (var item in itemsNotLearned)
         {
@@ -124,5 +130,55 @@ public class LearnController : MyController
         {
             return false;
         }
+    }
+
+    [HttpGet("{deckId}/learned/{cardId}")]
+    [Authorize]
+    public async Task<ActionResult> SetLearned(int deckId, int cardId)
+    {
+        var item = await _context.items.FirstOrDefaultAsync(e => e.CardId == cardId);
+        if (item == null)
+        {
+            return NotFound();
+        }
+
+        if (CurrentUser(User) != item.UserId)
+        {
+            return Unauthorized();
+        }
+
+        if (item.Learned)
+        {
+            return BadRequest(new Error("Duplicate answer", "This question has previously answered."));
+        }
+
+        item.Learned = true;
+        _context.Entry(item).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    [HttpPost("{deckId}/learned")]
+    [Authorize]
+    public async Task<ActionResult<List<int>>> SetListLearned(int deckId, List<int> cardIds)
+    {
+        var result = new List<int>();
+        foreach (var cardId in cardIds)
+        {
+            var item = await _context.items.FirstOrDefaultAsync(e => e.CardId == cardId);
+            if (item != null
+                && CurrentUser(User) == item.UserId
+                && !item.Learned)
+            {
+                item.Learned = true;
+                _context.Entry(item).State = EntityState.Modified;
+                result.Add(cardId);
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        return result;
     }
 }
