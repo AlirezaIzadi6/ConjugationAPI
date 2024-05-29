@@ -21,12 +21,12 @@ public class LearnController : MyController
         _context = context;
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{deckId}")]
     [Authorize]
-    public async Task<ActionResult<IEnumerable<CardDto>>> GetNewItem(int id, int count)
+    public async Task<ActionResult<IEnumerable<CardDto>>> GetNewItem(int deckId, int count)
     {
         Unit learningUnit;
-        var learnStatus = await _context.learnStatuses.FirstOrDefaultAsync(e => e.UserId == CurrentUser(User) && e.DeckId == id);
+        var learnStatus = await _context.learnStatuses.FirstOrDefaultAsync(e => e.UserId == CurrentUser(User) && e.DeckId == deckId);
 
         if (learnStatus != null)
         {
@@ -38,7 +38,7 @@ public class LearnController : MyController
             learningUnit = await _context.units.FindAsync(learnStatus.UnitId);
             if (!learnStatus.IsInitialized)
             {
-                InitializeUnit(learningUnit, CurrentUser(User));
+                InitializeUnit(learningUnit, CurrentUser(User), deckId);
                 learnStatus.IsInitialized = true;
                 _context.Entry(learnStatus).State = EntityState.Modified;
             }
@@ -47,17 +47,15 @@ public class LearnController : MyController
         else
         {
             learningUnit = await _context.units.FirstOrDefaultAsync(e => e.OrderNumber == 1);
-            var newLearnStatus = new LearnStatus()
+            InitializeUnit(learningUnit, CurrentUser(User), deckId);
+            learnStatus = new LearnStatus()
             {
                 UserId = CurrentUser(User),
-                DeckId = id,
+                DeckId = deckId,
                 UnitId = learningUnit.Id,
-                IsInitialized = false
+                IsInitialized = true
             };
-            _context.learnStatuses.Add(newLearnStatus);
-            InitializeUnit(learningUnit, CurrentUser(User));
-            learnStatus.IsInitialized = true;
-            _context.Entry(learnStatus).State = EntityState.Modified;
+            _context.learnStatuses.Add(learnStatus);
         }
 
         var cards = new List<Card>();
@@ -106,7 +104,7 @@ public class LearnController : MyController
         return cardDtos;
     }
 
-    private bool InitializeUnit(Unit unit, string userId)
+    private bool InitializeUnit(Unit unit, string userId, int deckId)
     {
         var cards = _context.cards.Where(e => e.UnitId == unit.Id);
         foreach (var card in cards)
@@ -117,6 +115,7 @@ public class LearnController : MyController
                 Learned = false,
                 NumberOfReviews = 0,
                 LastReview = DateTime.Now,
+                DeckId = deckId,
                 Card = card
             };
             _context.items.Add(newItem);
@@ -153,6 +152,9 @@ public class LearnController : MyController
         }
 
         item.Learned = true;
+        item.LearnedAt = DateTime.Now;
+        TimeSpan oneDay = new(1, 0, 0, 0);
+        item.NextReview = item.LearnedAt.Add(oneDay);
         _context.Entry(item).State = EntityState.Modified;
         await _context.SaveChangesAsync();
 
@@ -172,6 +174,9 @@ public class LearnController : MyController
                 && !item.Learned)
             {
                 item.Learned = true;
+                item.LearnedAt = DateTime.Now;
+                TimeSpan oneDay = new(1, 0, 0, 0);
+                item.NextReview = item.LearnedAt.Add(oneDay);
                 _context.Entry(item).State = EntityState.Modified;
                 result.Add(cardId);
             }
