@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ToLearnApi.Contexts;
 
 #nullable disable
 
-namespace ToLearnApi.Migrations.Conjugation
+namespace ToLearnApi.Migrations
 {
-    [DbContext(typeof(ConjugationContext))]
-    [Migration("20240524171404_AddItemModel")]
-    partial class AddItemModel
+    [DbContext(typeof(ApplicationDbContext))]
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,7 +44,7 @@ namespace ToLearnApi.Migrations.Conjugation
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("answers");
+                    b.ToTable("answers", "conjugation");
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Conjugation.Conjugation", b =>
@@ -122,7 +119,7 @@ namespace ToLearnApi.Migrations.Conjugation
 
                     b.HasKey("Id");
 
-                    b.ToTable("conjugations");
+                    b.ToTable("conjugations", "conjugation");
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Conjugation.Profile", b =>
@@ -155,7 +152,7 @@ namespace ToLearnApi.Migrations.Conjugation
 
                     b.HasKey("Id");
 
-                    b.ToTable("Profiles");
+                    b.ToTable("profiles", "conjugation");
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Conjugation.Question", b =>
@@ -194,7 +191,7 @@ namespace ToLearnApi.Migrations.Conjugation
 
                     b.HasKey("Id");
 
-                    b.ToTable("questions");
+                    b.ToTable("questions", "conjugation");
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Flashcards.Card", b =>
@@ -206,6 +203,10 @@ namespace ToLearnApi.Migrations.Conjugation
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Creator")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -227,7 +228,7 @@ namespace ToLearnApi.Migrations.Conjugation
 
                     b.HasIndex("UnitId");
 
-                    b.ToTable("cards");
+                    b.ToTable("cards", "flashcards");
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Flashcards.Deck", b =>
@@ -252,7 +253,7 @@ namespace ToLearnApi.Migrations.Conjugation
 
                     b.HasKey("Id");
 
-                    b.ToTable("decks");
+                    b.ToTable("decks", "flashcards");
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Flashcards.LearnAndReview.Item", b =>
@@ -266,11 +267,20 @@ namespace ToLearnApi.Migrations.Conjugation
                     b.Property<int>("CardId")
                         .HasColumnType("int");
 
+                    b.Property<int>("DeckId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("LastReview")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("Learned")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime>("LearnedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("NextReview")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("NumberOfReviews")
                         .HasColumnType("int");
@@ -283,7 +293,36 @@ namespace ToLearnApi.Migrations.Conjugation
 
                     b.HasIndex("CardId");
 
-                    b.ToTable("items");
+                    b.ToTable("items", "flashcards");
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Flashcards.LearnAndReview.LearnStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DeckId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsFinished")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsInitialized")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UnitId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("learnStatuses", "flashcards");
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Flashcards.Unit", b =>
@@ -293,6 +332,10 @@ namespace ToLearnApi.Migrations.Conjugation
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Creator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DeckId")
                         .HasColumnType("int");
@@ -312,7 +355,211 @@ namespace ToLearnApi.Migrations.Conjugation
 
                     b.HasIndex("DeckId");
 
-                    b.ToTable("units");
+                    b.ToTable("units", "flashcards");
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("roles", "identity");
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomRoleClaim", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("roleClaims", "identity");
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("RegistrationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("users", "identity");
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomUserClaim", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("userClaims", "identity");
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomUserLogin", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("userLogins", "identity");
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomUserRole", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("userRoles", "identity");
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomUserToken", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("userTokens", "identity");
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Conjugation.Answer", b =>
@@ -357,6 +604,57 @@ namespace ToLearnApi.Migrations.Conjugation
                         .IsRequired();
 
                     b.Navigation("Deck");
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomRoleClaim", b =>
+                {
+                    b.HasOne("ToLearnApi.Models.Identity.CustomRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomUserClaim", b =>
+                {
+                    b.HasOne("ToLearnApi.Models.Identity.CustomUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomUserLogin", b =>
+                {
+                    b.HasOne("ToLearnApi.Models.Identity.CustomUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomUserRole", b =>
+                {
+                    b.HasOne("ToLearnApi.Models.Identity.CustomRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ToLearnApi.Models.Identity.CustomUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ToLearnApi.Models.Identity.CustomUserToken", b =>
+                {
+                    b.HasOne("ToLearnApi.Models.Identity.CustomUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ToLearnApi.Models.Flashcards.Card", b =>
