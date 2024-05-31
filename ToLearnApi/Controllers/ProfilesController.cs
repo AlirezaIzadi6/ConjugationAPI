@@ -13,9 +13,9 @@ namespace ToLearnApi.Controllers;
 [ApiController]
 public class ProfilesController : MyController
 {
-    private readonly ConjugationContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public ProfilesController(ConjugationContext context)
+    public ProfilesController(ApplicationDbContext context)
     {
         _context = context;
     }

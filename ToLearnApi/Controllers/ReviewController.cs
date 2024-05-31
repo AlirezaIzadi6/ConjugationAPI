@@ -13,22 +13,22 @@ namespace ToLearnApi.Controllers;
 [ApiController]
 public class ReviewController : MyController
 {
-    private readonly ConjugationContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public ReviewController(ConjugationContext context)
+    public ReviewController(ApplicationDbContext context)
     {
         _context = context;
     }
 
     [HttpGet("{deckId}")]
     [Authorize]
-    public async Task<ActionResult<List<Question>>> GetQuestions(int deckId, int count)
+    public async Task<ActionResult<List<FlashcardQuestion>>> GetQuestions(int deckId, int count)
     {
         var reviewItems = _context.items.Where(e => e.DeckId == deckId && e.NextReview <= DateTime.Now)
             .OrderBy(e => e.NextReview)
             .ToList();
 
-        var questions = new List<Question>();
+        var questions = new List<FlashcardQuestion>();
         foreach (var item in reviewItems)
         {
             if (questions.Count == count)
@@ -37,7 +37,7 @@ public class ReviewController : MyController
             }
 
             var card = await _context.cards.FindAsync(item.CardId);
-            questions.Add(new Question()
+            questions.Add(new FlashcardQuestion()
             {
                 ItemId = item.Id,
                 QuestionText = card.Question
@@ -47,7 +47,7 @@ public class ReviewController : MyController
     }
 
     [HttpPost("{deckId}")]
-    public async Task<ActionResult> PostAnswer(int deckId,  Answer answer)
+    public async Task<ActionResult> PostAnswer(int deckId,  FlashcardAnswer answer)
     {
         var deck = await _context.decks.FindAsync(deckId);
         if (deck == null)

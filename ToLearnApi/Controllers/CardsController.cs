@@ -12,9 +12,9 @@ namespace ToLearnApi.Controllers
     [ApiController]
     public class CardsController : MyController
     {
-        private readonly ConjugationContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public CardsController(ConjugationContext context)
+        public CardsController(ApplicationDbContext context)
         {
             _context = context;
         }

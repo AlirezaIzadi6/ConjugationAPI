@@ -14,9 +14,9 @@ namespace ToLearnApi.Controllers;
 [ApiController]
 public class LearnController : MyController
 {
-    private readonly ConjugationContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public LearnController(ConjugationContext context)
+    public LearnController(ApplicationDbContext context)
     {
         _context = context;
     }

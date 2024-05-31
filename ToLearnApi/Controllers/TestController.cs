@@ -17,12 +17,10 @@ namespace ToLearnApi.Controllers;
 [ApiController]
 public class TestController : MyController
 {
-    private readonly ConjugationContext _context;
-    private readonly ApplicationDbContext _applicationDbContext;
-    public TestController(ConjugationContext context, ApplicationDbContext applicationDbContext)
+    private readonly ApplicationDbContext _context;
+    public TestController(ApplicationDbContext context)
     {
         _context = context;
-        _applicationDbContext = applicationDbContext;
     }
 
     [HttpGet("{id}/random")]
@@ -139,12 +137,12 @@ public class TestController : MyController
         _context.Entry(question).State = EntityState.Modified;
         await _context.SaveChangesAsync();
 
-        MyUser? currentUser = _applicationDbContext.Users.Find(CurrentUser(User));
+        CustomUser? currentUser = _context.Users.Find(CurrentUser(User));
         if (currentUser != null)
         {
             currentUser.Score += 5;
-            _applicationDbContext.Entry(currentUser).State = EntityState.Modified;
-            await _applicationDbContext.SaveChangesAsync();
+            _context.Entry(currentUser).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
 
         return Ok("right");
