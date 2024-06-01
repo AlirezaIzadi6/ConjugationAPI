@@ -32,6 +32,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapIdentityApi<CustomUser>();
+app.CustomMapIdentityApi<CustomUser>();
 
 app.Run();
