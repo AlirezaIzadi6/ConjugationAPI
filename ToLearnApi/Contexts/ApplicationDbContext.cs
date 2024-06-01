@@ -32,40 +32,41 @@ public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, st
     {
         base.OnModelCreating(modelBuilder);
 
+        string identitySchema = "security";
         // Identity tables:
         modelBuilder.Entity<CustomUser>(b =>
         {
-            b.ToTable("users", "identity");
+            b.ToTable("users", identitySchema);
         });
 
         modelBuilder.Entity<CustomRole>(b =>
         {
-            b.ToTable("roles", "identity");
+            b.ToTable("roles", identitySchema);
         });
 
         modelBuilder.Entity<CustomUserLogin>(b =>
         {
-            b.ToTable("userLogins", "identity");
+            b.ToTable("userLogins",     identitySchema);
         });
 
         modelBuilder.Entity<CustomUserRole>(b =>
         {
-            b.ToTable("userRoles", "identity");
+            b.ToTable("userRoles", identitySchema);
         });
 
         modelBuilder.Entity<CustomUserClaim>(b =>
         {
-            b.ToTable("userClaims", "identity");
+            b.ToTable("userClaims", identitySchema);
         });
 
         modelBuilder.Entity<CustomRoleClaim>(b =>
         {
-            b.ToTable("roleClaims", "identity");
+            b.ToTable("roleClaims", identitySchema);
         });
 
         modelBuilder.Entity<CustomUserToken>(b =>
         {
-            b.ToTable("userTokens", "identity");
+            b.ToTable("userTokens", identitySchema);
         });
 
         // Conjugation models:
