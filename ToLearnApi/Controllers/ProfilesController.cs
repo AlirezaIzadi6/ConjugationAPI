@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToLearnApi.Contexts;
@@ -25,7 +23,7 @@ public class ProfilesController : MyController
     [Authorize]
     public async Task<ActionResult<IEnumerable<ProfileDto>>> GetProfiles()
     {
-        var profiles = await _context.Profiles.Where(e => e.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToListAsync();
+        var profiles = await _context.Profiles.Where(e => e.UserId == CurrentUser(User)).ToListAsync();
         List<ProfileDto> profileDtos = new();
         foreach (var profile in profiles)
         {

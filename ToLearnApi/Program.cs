@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ToLearnApi.Extensions;
 using ToLearnApi.Contexts;
+using ToLearnApi.Extensions;
 using ToLearnApi.Models.Identity;
 
 var builder = WebApplication.CreateBuilder(args);

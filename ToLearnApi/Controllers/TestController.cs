@@ -1,15 +1,9 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using NuGet.Packaging.Signing;
 using ToLearnApi.Contexts;
 using ToLearnApi.Models.Conjugation;
 using ToLearnApi.Models.General;
-using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Controllers;
 
@@ -78,7 +72,7 @@ public class TestController : MyController
                     correctAnswer = conjugation.Form3P;
                     break;
             }
-            if (!correctAnswer.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(correctAnswer))
             {
                 break;
             }
@@ -136,14 +130,6 @@ public class TestController : MyController
         question.HasBeenAnswered = true;
         _context.Entry(question).State = EntityState.Modified;
         await _context.SaveChangesAsync();
-
-        CustomUser? currentUser = _context.Users.Find(CurrentUser(User));
-        if (currentUser != null)
-        {
-            currentUser.Score += 5;
-            _context.Entry(currentUser).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-        }
 
         return Ok("right");
     }

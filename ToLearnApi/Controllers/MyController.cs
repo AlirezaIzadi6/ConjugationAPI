@@ -1,7 +1,5 @@
 ﻿using System.Security.Claims;
-using System.Security.Principal;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ToLearnApi.Controllers;
 
