@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ToLearnApi.Models.Conjugation;
-using ToLearnApi.Models.Flashcards.LearnAndReview;
 using ToLearnApi.Models.Flashcards;
+using ToLearnApi.Models.Flashcards.LearnAndReview;
 using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Contexts;
@@ -33,6 +33,7 @@ public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, st
         base.OnModelCreating(modelBuilder);
 
         string identitySchema = "security";
+
         // Identity tables:
         modelBuilder.Entity<CustomUser>(b =>
         {
@@ -44,9 +45,9 @@ public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, st
             b.ToTable("roles", identitySchema);
         });
 
-        modelBuilder.Entity<CustomUserLogin>(b =>
+        modelBuilder.Entity<CustomUserClaim>(b =>
         {
-            b.ToTable("userLogins",     identitySchema);
+            b.ToTable("userClaims", identitySchema);
         });
 
         modelBuilder.Entity<CustomUserRole>(b =>
@@ -54,9 +55,9 @@ public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, st
             b.ToTable("userRoles", identitySchema);
         });
 
-        modelBuilder.Entity<CustomUserClaim>(b =>
+        modelBuilder.Entity<CustomUserLogin>(b =>
         {
-            b.ToTable("userClaims", identitySchema);
+            b.ToTable("userLogins", identitySchema);
         });
 
         modelBuilder.Entity<CustomRoleClaim>(b =>
@@ -79,7 +80,6 @@ public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, st
         {
             b.ToTable("profiles", "conjugation");
         });
-
 
         modelBuilder.Entity<Question>(b =>
         {

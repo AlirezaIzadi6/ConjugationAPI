@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Microsoft.AspNetCore.Routing;
+namespace ToLearnApi.Extensions;
 
 /// <summary>
 /// Provides extension methods for <see cref="IEndpointRouteBuilder"/> to add identity endpoints.

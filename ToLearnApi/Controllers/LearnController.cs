@@ -104,33 +104,6 @@ public class LearnController : MyController
         return cardDtos;
     }
 
-    private bool InitializeUnit(Unit unit, string userId, int deckId)
-    {
-        var cards = _context.cards.Where(e => e.UnitId == unit.Id);
-        foreach (var card in cards)
-        {
-            var newItem = new Item()
-            {
-                UserId = userId,
-                Learned = false,
-                NumberOfReviews = 0,
-                LastReview = DateTime.Now,
-                DeckId = deckId,
-                Card = card
-            };
-            _context.items.Add(newItem);
-        }
-        try
-        {
-            _context.SaveChanges();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     [HttpGet("{deckId}/learned/{cardId}")]
     [Authorize]
     public async Task<ActionResult> SetLearned(int deckId, int cardId)
@@ -185,5 +158,32 @@ public class LearnController : MyController
         await _context.SaveChangesAsync();
 
         return result;
+    }
+
+    private bool InitializeUnit(Unit unit, string userId, int deckId)
+    {
+        var cards = _context.cards.Where(e => e.UnitId == unit.Id);
+        foreach (var card in cards)
+        {
+            var newItem = new Item()
+            {
+                UserId = userId,
+                Learned = false,
+                NumberOfReviews = 0,
+                LastReview = DateTime.Now,
+                DeckId = deckId,
+                Card = card
+            };
+            _context.items.Add(newItem);
+        }
+        try
+        {
+            _context.SaveChanges();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
