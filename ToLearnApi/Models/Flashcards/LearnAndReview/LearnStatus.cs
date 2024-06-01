@@ -5,9 +5,9 @@ namespace ToLearnApi.Models.Flashcards.LearnAndReview;
 public class LearnStatus
 {
     public int Id { get; set; }
-    public string UserId { get; set; }
-    public int DeckId { get; set; }
-    public int UnitId { get; set; }
-    public bool IsInitialized { get; set; }
-    public bool IsFinished { get; set; } = false;
+    public required string UserId { get; set; }
+    public required int DeckId { get; set; }
+    public required int UnitId { get; set; }
+    public required bool IsInitialized { get; set; }
+    public required bool IsFinished { get; set; } = false;
 }

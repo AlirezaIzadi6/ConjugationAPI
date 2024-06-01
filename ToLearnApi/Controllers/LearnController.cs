@@ -25,7 +25,8 @@ public class LearnController : MyController
     [Authorize]
     public async Task<ActionResult<IEnumerable<CardDto>>> GetNewItem(int deckId, int count)
     {
-        Unit learningUnit;
+        Unit? learningUnit;
+
         var learnStatus = await _context.learnStatuses.FirstOrDefaultAsync(e => e.UserId == CurrentUser(User) && e.DeckId == deckId);
 
         if (learnStatus != null)
@@ -36,6 +37,11 @@ public class LearnController : MyController
             }
 
             learningUnit = await _context.units.FindAsync(learnStatus.UnitId);
+            if (learningUnit == null)
+            {
+                return BadRequest(new Error("Data error", "Requested unit doesn't exist."));
+            }
+
             if (!learnStatus.IsInitialized)
             {
                 InitializeUnit(learningUnit, CurrentUser(User), deckId);
@@ -47,13 +53,19 @@ public class LearnController : MyController
         else
         {
             learningUnit = await _context.units.FirstOrDefaultAsync(e => e.OrderNumber == 1);
+            if (learningUnit == null)
+            {
+                return BadRequest(new Error("Data error", "Requested unit doesn't exist."));
+            }
+
             InitializeUnit(learningUnit, CurrentUser(User), deckId);
             learnStatus = new LearnStatus()
             {
                 UserId = CurrentUser(User),
                 DeckId = deckId,
                 UnitId = learningUnit.Id,
-                IsInitialized = true
+                IsInitialized = true,
+                IsFinished = false
             };
             _context.learnStatuses.Add(learnStatus);
         }
@@ -92,7 +104,10 @@ public class LearnController : MyController
                 break;
             }
             var itemCard = await _context.cards.FindAsync(item.CardId);
-            cards.Add(itemCard);
+            if (itemCard != null)
+            {
+                cards.Add(itemCard);
+            }
         }
 
         var cardDtos = new List<CardDto>();
@@ -169,8 +184,10 @@ public class LearnController : MyController
             {
                 UserId = userId,
                 Learned = false,
+                LearnedAt = DateTime.Now,
                 NumberOfReviews = 0,
                 LastReview = DateTime.Now,
+                NextReview = DateTime.Now,
                 DeckId = deckId,
                 Card = card
             };

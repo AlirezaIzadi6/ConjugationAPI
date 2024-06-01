@@ -37,11 +37,14 @@ public class ReviewController : MyController
             }
 
             var card = await _context.cards.FindAsync(item.CardId);
-            questions.Add(new FlashcardQuestion()
+            if (card != null)
             {
-                ItemId = item.Id,
-                QuestionText = card.Question
-            });
+                questions.Add(new FlashcardQuestion()
+                {
+                    ItemId = item.Id,
+                    QuestionText = card.Question
+                });
+            }
         }
         return questions;
     }
@@ -67,6 +70,11 @@ public class ReviewController : MyController
         }
 
         var card = await _context.cards.FindAsync(item.CardId);
+        if (card == null)
+        {
+            return BadRequest(new Error("Data error", "Card does not exist."));
+        }
+
         if (answer.AnswerText != card.Answer)
         {
             return Ok("Wrong");

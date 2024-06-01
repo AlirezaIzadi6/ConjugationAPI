@@ -3,5 +3,5 @@
 public class FlashcardAnswer
 {
     public int ItemId { get; set; }
-    public string AnswerText {  get; set; }
+    public required string AnswerText { get; set; } = string.Empty;
 }

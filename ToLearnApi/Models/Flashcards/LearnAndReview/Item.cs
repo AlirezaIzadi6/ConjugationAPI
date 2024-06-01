@@ -7,12 +7,12 @@ public class Item
 {
     public int Id { get; set; }
     public int DeckId { get; set; }
-    public string UserId { get; set; }
-    public bool Learned { get; set; }
-    public DateTime LearnedAt { get; set; }
-    public int NumberOfReviews { get; set; }
-    public DateTime LastReview {  get; set; }
-    public DateTime NextReview { get; set; }
+    public required string UserId { get; set; }
+    public required bool Learned { get; set; }
+    public required DateTime LearnedAt { get; set; }
+    public required int NumberOfReviews { get; set; }
+    public required DateTime LastReview {  get; set; }
+    public required DateTime NextReview { get; set; }
     [Required]
     public int CardId { get; set; }
     public Card Card { get; set; }

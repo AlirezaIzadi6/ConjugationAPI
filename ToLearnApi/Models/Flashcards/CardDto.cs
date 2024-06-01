@@ -6,10 +6,10 @@ public class CardDto
 {
     public int Id { get; set; }
     [Required]
-    public string Question { get; set; }
+    public required string Question { get; set; }
     [Required]
-    public string Answer { get; set; }
-    public string Description { get; set; }
+    public required string Answer { get; set; }
+    public required string Description { get; set; } = string.Empty;
     public int OrderNumber { get; set; }
     [Required]
     public int UnitId { get; set; }
