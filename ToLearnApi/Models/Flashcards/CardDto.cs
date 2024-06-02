@@ -5,10 +5,11 @@ namespace ToLearnApi.Models.Flashcards;
 public class CardDto
 {
     public int Id { get; set; }
-    [Required]
+    [Required, StringLength(8000)]
     public required string Question { get; set; }
-    [Required]
+    [Required, StringLength(100)]
     public required string Answer { get; set; }
+    [StringLength(8000)]
     public required string Description { get; set; } = string.Empty;
     public int OrderNumber { get; set; }
     [Required]

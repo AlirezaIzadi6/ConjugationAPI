@@ -7,8 +7,11 @@ public class Card
 {
     public int Id { get; set; }
     public required string Creator { get; set; } = string.Empty;
+    [StringLength(8000)]
     public required string Question { get; set; } = string.Empty;
+    [StringLength(100)]
     public required string Answer { get; set; } = string.Empty;
+    [StringLength(8000)]
     public required string Description { get; set; } = string.Empty;
     public required int OrderNumber { get; set; }
     [Required]

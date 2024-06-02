@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ToLearnApi.Models.Conjugation;
 
@@ -7,6 +8,7 @@ public class Answer
     public int Id { get; set; }
     [ForeignKey(nameof(Question))]
     public int QuestionId { get; set; } = 0;
+    [StringLength(100)]
     public string AnswerText { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; } = DateTime.Now;
     public Question Question { get; init; } = new();

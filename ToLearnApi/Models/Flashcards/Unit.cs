@@ -6,7 +6,9 @@ public class Unit
 {
     public int Id { get; set;  }
     public required string Creator { get; set; }
+    [StringLength(100)]
     public required string Name { get; set; }
+    [StringLength(4000)]
     public required string Description { get; set; }
     public required int OrderNumber { get; set; }
     [Required]    

@@ -5,8 +5,9 @@ namespace ToLearnApi.Models.Flashcards;
 public class UnitDto
 {
     public int Id { get; set; }
-    [Required]
+    [Required, StringLength(100)]
     public string Name { get; set; } = string.Empty;
+    [StringLength(4000)]
     public string Description { get; set; } = string.Empty;
     public int OrderNumber { get; set; }
     [Required]

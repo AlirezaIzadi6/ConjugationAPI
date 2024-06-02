@@ -7,8 +7,11 @@ public class Profile
 {
     public int Id { get; set; }
     public string UserId { get; set; } = string.Empty;
+    [StringLength(100)]
     public string Name { get; set; } = string.Empty;
+    [StringLength(8000)]
     public string Moods { get; set; } = string.Empty;
+    [StringLength(1000)]
     public string Infinitives {  get; set; } = string.Empty;
     public string Persons {  get; set; } = string.Empty;
 
