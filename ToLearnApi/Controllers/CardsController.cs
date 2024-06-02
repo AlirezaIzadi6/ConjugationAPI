@@ -18,23 +18,28 @@ public class CardsController : MyController
         _context = context;
     }
 
-    // GET: api/Cards
+    // GET: api/Cards/10
     [HttpGet("unit{id}")]
     public async Task<ActionResult<IEnumerable<CardDto>>> Getcards(int id)
     {
-        var cards = await _context.cards.Where(e => e.UnitId == id).ToListAsync();
+        // Retrieve cards with requested UnitId and return a list of DTOs.
+        var cards = await _context.cards.Where(e => e.UnitId == id)
+            .ToListAsync();
         var cardDtos = new List<CardDto>();
+
         foreach (var card in cards)
         {
             cardDtos.Add(card.GetDto());
         }
+
         return Ok(cardDtos);
     }
 
-    // GET: api/Cards/5
+    // GET: api/Cards/50
     [HttpGet("{id}")]
     public async Task<ActionResult<CardDto>> GetCard(int id)
     {
+        // Find the card with requested id and return its DTO.
         var card = await _context.cards.FindAsync(id);
 
         if (card == null)
@@ -51,10 +56,12 @@ public class CardsController : MyController
     [Authorize]
     public async Task<IActionResult> PutCard(int id, CardDto cardDto)
     {
+        // Find requested card and check errors.
         var card = _context.cards.Find(id);
+
         if (card == null)
         {
-            return NotFound(id);
+            return NotFound();
         }
 
         if (id != card.Id)
@@ -67,8 +74,11 @@ public class CardsController : MyController
             return Unauthorized();
         }
 
-        int oldOrderNumber = card.OrderNumber;
+        // No error occurred, so Update card.
+
+        int oldOrderNumber = card.OrderNumber; // Store this value before updating card.
         card.UpdateWithDto(cardDto);
+        // If changing order was unsuccessful, reset OrderNumber to previous value.
         bool changeOrder = await ChangeOrder(oldOrderNumber, card.OrderNumber);
         if (!changeOrder)
         {
@@ -103,7 +113,10 @@ public class CardsController : MyController
     public async Task<ActionResult<CardDto>> PostCard(CardDto cardDto)
     {
         var card = cardDto.GetCard(CurrentUser(User));
+
+        // Find requested unit and check errors.
         var unit = await _context.units.FindAsync(cardDto.UnitId);
+
         if (unit == null)
         {
             return BadRequest(new Error("Wrong unit Id", "Unit with your requested Id has not found."));
@@ -114,9 +127,11 @@ public class CardsController : MyController
             return Unauthorized();
         }
 
+        // Define OrderNumber and save card.
         var previousCardsCount = await _context.cards.CountAsync(e => e.UnitId  == card.UnitId);
         card.OrderNumber = previousCardsCount+1;
         _context.cards.Add(card);
+
         await _context.SaveChangesAsync();
 
         return CreatedAtAction("GetCard", new { id = card.Id }, card.GetDto());
@@ -127,7 +142,9 @@ public class CardsController : MyController
     [Authorize]
     public async Task<IActionResult> DeleteCard(int id)
     {
+        // Find requested card and check for errors.
         var card = await _context.cards.FindAsync(id);
+
         if (card == null)
         {
             return NotFound();
@@ -138,32 +155,35 @@ public class CardsController : MyController
             return Unauthorized();
         }
 
+        // Delete and save.
         _context.cards.Remove(card);
         await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
-    private bool CardExists(int id)
-    {
-        return _context.cards.Any(e => e.Id == id);
-    }
-
+    // Get current and requested OrderNumber as input and return true if changes were successful.
+    // OrderNumber starts from 1, and 0 for target means removing.
     private async Task<bool> ChangeOrder(int start, int target)
     {
         if (target== start)
         {
-            return true;
+            return true; // Actually no change is needed to process this.
         }
 
+        // Negative values are not accepted.
         if (target < 0 || start <= 0)
         {
             return false;
         }
 
+        // Remove card.
         if (target == 0)
         {
-            var cards = await _context.cards.Where(e => e.OrderNumber > target).ToListAsync();
+            // Find all next cards and decrease OrderNumber 1 step.
+            var cards = await _context.cards.Where(e => e.OrderNumber > target)
+                .ToListAsync();
+
             foreach (var card in cards)
             {
                 card.OrderNumber--;
@@ -171,16 +191,23 @@ public class CardsController : MyController
             }
         }
 
+        // Move card down (OrderNumber increases).
         else if(target > start)
         {
+            // Find requested card and if it exists, change OrderNumber to target value.
             var targetCard = await _context.cards.FirstOrDefaultAsync(e => e.OrderNumber == start);
+
             if (targetCard == null)
             {
                 return false;
             }
+
             targetCard.OrderNumber = target;
 
-            var cards = await _context.cards.Where(e => e.OrderNumber > start && e.OrderNumber <= target).ToListAsync();
+            // Find cards with OrderNumber between start and target, and move them up all except requested card.
+            var cards = await _context.cards.Where(e => e.OrderNumber > start && e.OrderNumber <= target)
+                .ToListAsync();
+
             foreach (var card in cards)
             {
                 if (card.Id == targetCard.Id)
@@ -212,6 +239,8 @@ public class CardsController : MyController
                 _context.Entry(card).State = EntityState.Modified;
             }
         }
+
+        // Try save changes or return false.
         try
         {
             await _context.SaveChangesAsync();
@@ -221,5 +250,10 @@ public class CardsController : MyController
         {
             return false;
         }
+    }
+
+    private bool CardExists(int id)
+    {
+        return _context.cards.Any(e => e.Id == id);
     }
 }

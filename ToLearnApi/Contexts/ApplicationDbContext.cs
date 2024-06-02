@@ -10,6 +10,8 @@ namespace ToLearnApi.Contexts;
 
 public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, string, CustomUserClaim, CustomUserRole, CustomUserLogin, CustomRoleClaim, CustomUserToken>
 {
+    // Add dbsets except default identity models that IdentityDbContext includes:
+
     // Conjugation models:
     public DbSet<Conjugation> conjugations { get; set; }
     public DbSet<Profile> Profiles { get; set; }
@@ -30,91 +32,95 @@ public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, st
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Set custom table name and schema name for tables with FluentApi.
         base.OnModelCreating(modelBuilder);
 
-        string identitySchema = "security";
+        // Define names for db schemas:
+        string identitySchemaName = "security";
+        string conjugationSchemaName = "conjugation";
+        string flashcardsSchemaName = "flashcards";
 
         // Identity tables:
         modelBuilder.Entity<CustomUser>(b =>
         {
-            b.ToTable("users", identitySchema);
+            b.ToTable("users", identitySchemaName);
         });
 
         modelBuilder.Entity<CustomRole>(b =>
         {
-            b.ToTable("roles", identitySchema);
+            b.ToTable("roles", identitySchemaName);
         });
 
         modelBuilder.Entity<CustomUserClaim>(b =>
         {
-            b.ToTable("userClaims", identitySchema);
+            b.ToTable("userClaims", identitySchemaName);
         });
 
         modelBuilder.Entity<CustomUserRole>(b =>
         {
-            b.ToTable("userRoles", identitySchema);
+            b.ToTable("userRoles", identitySchemaName);
         });
 
         modelBuilder.Entity<CustomUserLogin>(b =>
         {
-            b.ToTable("userLogins", identitySchema);
+            b.ToTable("userLogins", identitySchemaName);
         });
 
         modelBuilder.Entity<CustomRoleClaim>(b =>
         {
-            b.ToTable("roleClaims", identitySchema);
+            b.ToTable("roleClaims", identitySchemaName);
         });
 
         modelBuilder.Entity<CustomUserToken>(b =>
         {
-            b.ToTable("userTokens", identitySchema);
+            b.ToTable("userTokens", identitySchemaName);
         });
 
         // Conjugation models:
         modelBuilder.Entity<Conjugation>(b =>
         {
-            b.ToTable("conjugations", "conjugation");
+            b.ToTable("conjugations", conjugationSchemaName);
         });
 
         modelBuilder.Entity<Profile>(b =>
         {
-            b.ToTable("profiles", "conjugation");
+            b.ToTable("profiles", conjugationSchemaName);
         });
 
         modelBuilder.Entity<Question>(b =>
         {
-            b.ToTable("questions", "conjugation");
+            b.ToTable("questions", conjugationSchemaName);
         });
 
         modelBuilder.Entity<Answer>(b =>
         {
-            b.ToTable("answers", "conjugation");
+            b.ToTable("answers", conjugationSchemaName);
         });
 
         // Flashcards models:
         modelBuilder.Entity<Deck>(b =>
         {
-            b.ToTable("decks", "flashcards");
+            b.ToTable("decks", flashcardsSchemaName);
         });
 
         modelBuilder.Entity<Unit>(b =>
         {
-            b.ToTable("units", "flashcards");
+            b.ToTable("units", flashcardsSchemaName);
         });
 
         modelBuilder.Entity<Card>(b =>
         {
-            b.ToTable("cards", "flashcards");
+            b.ToTable("cards", flashcardsSchemaName);
         });
 
         modelBuilder.Entity<Item>(b =>
         {
-            b.ToTable("items", "flashcards");
+            b.ToTable("items", flashcardsSchemaName);
         });
 
         modelBuilder.Entity<LearnStatus>(b =>
         {
-            b.ToTable("learnStatuses", "flashcards");
+            b.ToTable("learnStatuses", flashcardsSchemaName);
         });
     }
 }

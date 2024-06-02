@@ -17,40 +17,54 @@ public class TestController : MyController
         _context = context;
     }
 
+    // Get: api/test/5/random
     [HttpGet("{id}/random")]
     [Authorize]
     public async Task<ActionResult<QuestionDto>> GetRandomQuestion(int id)
     {
-        if (!_context.Profiles.Any(e => e.Id == id))
+        // Find requested profile and check for errors.
+        var profile = _context.Profiles.Find(id);
+
+        if (profile == null)
         {
             return NotFound();
         }
 
-        Profile profile = _context.Profiles.First(e => e.Id == id);
         if (!profile.CheckUser(User))
         {
             return Unauthorized();
         }
+
+        // Retrieve default profile to get complete list of infinitives, moods and tenses. If "all" keyword is used in request, use this profile instead of requested profile for that field.
         Profile defaultProfile = _context.Profiles.First(e => e.Name == "default");
-        Random rand = new();
 
         var infinitives = (profile.Infinitives == "all") ? defaultProfile.Infinitives.Split(',') : profile.Infinitives.Split(',');
         var moods = (profile.Moods == "all") ? defaultProfile.Moods.Split(',') : profile.Moods.Split(',');
         var persons = (profile.Persons == "all") ? defaultProfile.Persons.Split(',') : profile.Persons.Split(',');
+
+        // Define required variables in following loop.
         string infinitive, moodAndTense, mood, tense, person = string.Empty;
         string? correctAnswer = string.Empty;
+
         while (true)
         {
+            // Choose a random infinitive, mood, tense and person. If there is no conjugation with these data, loop continues getting new randoms to find one.
+            Random rand = new();
+
             infinitive = infinitives[rand.Next(0, infinitives.Length)];
             moodAndTense = moods[rand.Next(0, moods.Length)];
+            // moodAndTense is two parts separated by '-'. So we have to split them.
             mood = moodAndTense.Split('-')[0];
             tense = moodAndTense.Split('-')[1];
-            Conjugation? conjugation = _context.conjugations.FirstOrDefault(e => e.Infinitive == infinitive && e.Mood == mood && e.Tense == tense);
+            person = persons[rand.Next(0, persons.Length)];
+
+            // Get conjugation, and if exists, set correctAnswer based on person value. If doesn't exist, find new random values.
+            Conjugation? conjugation = await _context.conjugations.FirstOrDefaultAsync(e => e.Infinitive == infinitive && e.Mood == mood && e.Tense == tense);
             if (conjugation == null)
             {
                 continue;
             }
-            person = persons[rand.Next(0, persons.Length)];
+
             switch(person)
             {
                 case "1s":
@@ -72,15 +86,13 @@ public class TestController : MyController
                     correctAnswer = conjugation.Form3P;
                     break;
             }
-            if (!string.IsNullOrEmpty(correctAnswer))
+            if (!string.IsNullOrEmpty(correctAnswer)) // If there is a conjugation for our values
             {
                 break;
             }
         }
-        if (correctAnswer == null)
-        {
-            correctAnswer = string.Empty;
-        }
+
+        // Create, save and return a question based on found values.
         Question question = new()
         {
             UserId = CurrentUser(User),
@@ -90,17 +102,20 @@ public class TestController : MyController
             HasBeenAnswered = false,
             Answer = correctAnswer
         };
+
         _context.questions.Add(question);
         await _context.SaveChangesAsync();
-        QuestionDto questionDto = question.GetDto();
-        return questionDto;
+
+        return question.GetDto();
     }
 
+    // POST: api/test/answer
     [HttpPost("answer")]
     [Authorize]
     public async Task<ActionResult> Examine(AnswerDto answerDto)
     {
-        Question? question = _context.questions.Find(answerDto.QuestionId);
+        // Find requested question and check for errors.
+        var question = await _context.questions.FindAsync(answerDto.QuestionId);
         if (question == null)
         {
             return NotFound();
@@ -116,21 +131,31 @@ public class TestController : MyController
             return BadRequest(new Error("Not accepted", "You have answered this question before."));
         }
 
+        // Create new answer object to save.
         Answer newAnswer = new()
         {
             AnswerText = answerDto.AnswerText,
             Question = question
         };
+
         _context.answers.Add(newAnswer);
-        if (!(answerDto.AnswerText == question.Answer))
+
+        // Check answer and return 200 response with result text. Make question answered if answer is correct.
+        string response;
+        if (answerDto.AnswerText == question.Answer)
         {
-            return Ok("wrong");
+            response = "Right";
+            question.HasBeenAnswered = true;
+            _context.Entry(question).State = EntityState.Modified;
         }
 
-        question.HasBeenAnswered = true;
-        _context.Entry(question).State = EntityState.Modified;
+        else
+        {
+            response = "Wrong";
+        }
+
         await _context.SaveChangesAsync();
 
-        return Ok("right");
+        return Ok(response);
     }
 }

@@ -32,6 +32,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Use custom extension for routing and processing identity requests:
 app.CustomMapIdentityApi<CustomUser>();
 
 app.Run();
