@@ -184,11 +184,16 @@ public class ProfilesController : MyController
             return true;
         }
 
+        // Get complete list of infinitives from default profile.
+        var defaultProfile = _context.Profiles.First(e => e.Name == "default");
+        var existingInfinitives = defaultProfile.Infinitives.Split(',')
+            .ToList();
         string[] infinitives = value.Split(',');
+
+        // All requested infinitives must exist in existingInfinitives list.
         foreach (string infinitive in infinitives)
         {
-            // return false if there's not any record in database with this infinitive.
-            if (!_context.conjugations.Any(e => e.Infinitive == infinitive))
+            if (!existingInfinitives.Contains(infinitive))
             {
                 return false;
             }
@@ -208,19 +213,15 @@ public class ProfilesController : MyController
         // First create a list of mood-tenses.
         string[] moods = value.Split(',');
 
+        // Get complete list of mood-tenses from default profile.
+        var defaultProfile = _context.Profiles.First(e => e.Name == "default");
+        var existingMoods = defaultProfile.Moods.Split(',')
+            .ToList();
+
+        // All requested values must exist in existingMoods list.
         foreach (var moodAndTense in moods)
         {
-            // every mood-tense must have exactly one '-' that separates mood from tense.
-            string[] moodParsed = moodAndTense.Split('-');
-            if (moodParsed.Length != 2)
-            {
-                return false;
-            }
-
-            string mood = moodParsed[0];
-            string tense = moodParsed[1];
-            // return false if there's no record in database with this mood and tense.
-            if (!_context.conjugations.Any(e => e.Mood == mood && e.Tense == tense))
+            if (!existingMoods.Contains(moodAndTense))
             {
                 return false;
             }
