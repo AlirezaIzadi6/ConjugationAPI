@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using ToLearnApi.Contexts;
+using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Extensions;
 
@@ -80,6 +82,13 @@ public static class IdentityApiEndpointRouteBuilderExtensions
             await userStore.SetUserNameAsync(user, userName, CancellationToken.None);
             await emailStore.SetEmailAsync(user, email, CancellationToken.None);
             var result = await userManager.CreateAsync(user, registration.Password);
+
+            // Get DbContext and set custom fields.
+            var _context = sp.GetRequiredService<ApplicationDbContext>();
+            var newUser = _context.Users.First(e => e.UserName == registration.UserName);
+            // Set desired fields from registration here.
+            _context.Entry(newUser).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             if (!result.Succeeded)
             {
