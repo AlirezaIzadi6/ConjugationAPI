@@ -69,7 +69,7 @@ public class CardsController : MyController
             return BadRequest(new Error("Wrong Id", "You are requesting a different id than the card you are trying to modify."));
         }
 
-        if (CurrentUser(User) != card.Creator)
+        if (CurrentUser(User) != card.UserId)
         {
             return Unauthorized();
         }
@@ -122,7 +122,7 @@ public class CardsController : MyController
             return BadRequest(new Error("Wrong unit Id", "Unit with your requested Id has not found."));
         }
 
-        if (CurrentUser(User) != unit.Creator)
+        if (CurrentUser(User) != unit.UserId)
         {
             return Unauthorized();
         }
@@ -150,7 +150,7 @@ public class CardsController : MyController
             return NotFound();
         }
 
-        if (CurrentUser(User) != card.Creator)
+        if (CurrentUser(User) != card.UserId)
         {
             return Unauthorized();
         }

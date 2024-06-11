@@ -1,12 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Claims;
+using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Models.Conjugation;
 
 public class Profile
 {
     public int Id { get; set; }
-    public string UserId { get; set; } = string.Empty;
+    [ForeignKey(nameof(CustomUser))]
+    public string UserId { get; set; }
+    public CustomUser User { get; set; }
     [StringLength(100)]
     public string Name { get; set; } = string.Empty;
     [StringLength(8000)]

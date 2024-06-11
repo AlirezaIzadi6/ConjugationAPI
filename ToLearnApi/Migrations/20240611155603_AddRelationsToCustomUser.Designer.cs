@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ToLearnApi.Contexts;
 
@@ -11,9 +12,11 @@ using ToLearnApi.Contexts;
 namespace ToLearnApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240611155603_AddRelationsToCustomUser")]
+    partial class AddRelationsToCustomUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -635,7 +638,7 @@ namespace ToLearnApi.Migrations
                     b.HasOne("ToLearnApi.Models.Identity.CustomUser", "User")
                         .WithMany("Cards")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Unit");
@@ -665,7 +668,7 @@ namespace ToLearnApi.Migrations
                     b.HasOne("ToLearnApi.Models.Identity.CustomUser", "User")
                         .WithMany("Items")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Card");
@@ -678,7 +681,7 @@ namespace ToLearnApi.Migrations
                     b.HasOne("ToLearnApi.Models.Identity.CustomUser", "User")
                         .WithMany("learnStatuses")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -695,7 +698,7 @@ namespace ToLearnApi.Migrations
                     b.HasOne("ToLearnApi.Models.Identity.CustomUser", "User")
                         .WithMany("Units")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Deck");

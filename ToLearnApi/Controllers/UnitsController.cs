@@ -86,7 +86,7 @@ public class UnitsController : MyController
             return NotFound();
         }
 
-        if (CurrentUser(User) != unit.Creator)
+        if (CurrentUser(User) != unit.UserId)
         {
             return Unauthorized();
         }
@@ -141,7 +141,7 @@ public class UnitsController : MyController
             return BadRequest(new Error("Wrong Id", "You are requesting a different id than the unit you are trying to modify."));
         }
 
-        if (CurrentUser(User) != unit.Creator)
+        if (CurrentUser(User) != unit.UserId)
         {
             return Unauthorized();
         }
@@ -235,7 +235,7 @@ public class UnitsController : MyController
             return NotFound();
         }
 
-        if (CurrentUser(User) != unit.Creator)
+        if (CurrentUser(User) != unit.UserId)
         {
             return Unauthorized();
         }

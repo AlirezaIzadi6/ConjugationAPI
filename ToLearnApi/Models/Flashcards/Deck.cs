@@ -1,10 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Models.Flashcards;
 
 public class Deck
 {
     public int Id { get; set; }
+    [ForeignKey(nameof(CustomUser))]
+    public string UserId { get; set; }
+    public CustomUser User { get; set; }
     public string Creator { get; set; } = string.Empty;
     [StringLength(100)]
     public string Title { get; set; } = string.Empty;

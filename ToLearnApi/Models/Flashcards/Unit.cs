@@ -1,11 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Models.Flashcards;
 
 public class Unit
 {
     public int Id { get; set;  }
-    public required string Creator { get; set; }
+    [ForeignKey(nameof(CustomUser))]
+    public string UserId { get; set; }
+    public CustomUser User { get; set; }
     [StringLength(100)]
     public required string Name { get; set; }
     [StringLength(4000)]

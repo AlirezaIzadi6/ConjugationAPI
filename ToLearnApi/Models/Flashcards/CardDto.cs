@@ -19,7 +19,7 @@ public class CardDto
     {
         return new()
         {
-            Creator = userId,
+            UserId = userId,
             Question = Question,
             Answer = Answer,
             Description = Description,

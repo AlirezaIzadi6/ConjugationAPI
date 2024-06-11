@@ -1,12 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using ToLearnApi.Models.Flashcards.LearnAndReview;
+using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Models.Flashcards;
 
 public class Card
 {
     public int Id { get; set; }
-    public required string Creator { get; set; } = string.Empty;
+    [ForeignKey(nameof(CustomUser))]
+    public required string UserId { get; set; } = string.Empty;
+    public CustomUser User { get; set; }
     [StringLength(8000)]
     public required string Question { get; set; } = string.Empty;
     [StringLength(100)]
