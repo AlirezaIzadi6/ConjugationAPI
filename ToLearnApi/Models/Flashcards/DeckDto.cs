@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Models.Flashcards;
 
@@ -11,13 +12,14 @@ public class DeckDto
     [StringLength(4000)]
     public string Description { get; set; } = string.Empty;
 
-    public Deck GetDeck(string UserEmail)
+    public Deck GetDeck(CustomUser user)
     {
         return new Deck()
         {
-            Creator = UserEmail,
+            Creator = user.UserName,
             Title = Title,
-            Description = Description
+            Description = Description,
+            User = user
         };
     }
 }

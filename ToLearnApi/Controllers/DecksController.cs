@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToLearnApi.Contexts;
 using ToLearnApi.Models.Flashcards;
 using ToLearnApi.Models.General;
+using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Controllers;
 
@@ -12,10 +14,12 @@ namespace ToLearnApi.Controllers;
 public class DecksController : MyController
 {
     private readonly ApplicationDbContext _context;
+    private readonly UserManager<CustomUser> _userManager;
 
-    public DecksController(ApplicationDbContext context)
+    public DecksController(ApplicationDbContext context, UserManager<CustomUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     // GET: api/Decks
@@ -66,7 +70,7 @@ public class DecksController : MyController
             return BadRequest(new Error("Wrong Id", "You are requesting a different id than the deck you are trying to modify."));
         }
 
-        if (CurrentUser(User) != deck.Creator)
+        if (CurrentUser(User) != deck.UserId)
         {
             return Unauthorized();
         }
@@ -105,7 +109,8 @@ public class DecksController : MyController
     [Authorize]
     public async Task<ActionResult<DeckDto>> PostDeck(DeckDto deckDto)
     {
-        Deck deck = deckDto.GetDeck(CurrentUser(User));
+        var currentUser = await _userManager.FindByIdAsync(CurrentUser(User));
+        Deck deck = deckDto.GetDeck(currentUser);
 
         // Continue only if new deck is unique.
         if (!IsUnique(deck))
@@ -132,7 +137,7 @@ public class DecksController : MyController
             return NotFound();
         }
 
-        if (CurrentUser(User) != deck.Creator)
+        if (CurrentUser(User) != deck.UserId)
         {
             return Unauthorized();
         }

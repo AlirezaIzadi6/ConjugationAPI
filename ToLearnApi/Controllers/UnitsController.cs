@@ -203,7 +203,7 @@ public class UnitsController : MyController
             return BadRequest(unitDto);
         }
 
-        if (CurrentUser(User) != deck.Creator)
+        if (CurrentUser(User) != deck.UserId)
         {
             return Unauthorized();
         }
