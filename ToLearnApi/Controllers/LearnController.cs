@@ -54,10 +54,10 @@ public class LearnController : MyController
         else
         {
             // No learning history, so initialize the first unit and create a new LearnStatus for this user/deck.
-            learningUnit = await _context.units.FirstOrDefaultAsync(e => e.OrderNumber == 1);
+            learningUnit = await _context.units.FirstOrDefaultAsync(e => e.OrderNumber == 1 && e.DeckId == deckId);
             if (learningUnit == null)
             {
-                return BadRequest(new Error("Data error", "Requested unit doesn't exist."));
+                return BadRequest(new Error("No unit", "This unit does not have any units."));
             }
 
             InitializeUnit(learningUnit, CurrentUser(User));
