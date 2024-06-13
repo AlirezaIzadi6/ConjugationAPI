@@ -100,4 +100,57 @@ public class ReviewController : MyController
 
         return Ok("Right");
     }
+
+    // GET: api/review/getanswer/10
+    [HttpGet("getanswer/{itemId}")]
+    [Authorize]
+    public async Task<ActionResult<CardDto>> GetAnswer(int itemId)
+    {
+        // Find requested item and if exists, return DTO of its card.
+        var item = await _context.items.FindAsync(itemId);
+
+        if (item == null)
+        {
+            return NotFound();
+        }
+
+        var card = await _context.cards.FindAsync(item.CardId);
+
+        return Ok(card.GetDto());
+    }
+
+    // GET: api/review/reset/10
+    [HttpGet("reset/{itemId}")]
+    [Authorize]
+    public async Task<ActionResult<CardDto>> ResetItem(int itemId)
+    {
+        // Find requested item and check existance. If exists, check if this user have learnStatus related to this item's deck.
+        var item = await _context.items.FindAsync(itemId);
+
+        if (item == null)
+        {
+            return NotFound();
+        }
+
+        var learnStatus = await _context.learnStatuses.FirstOrDefaultAsync(e => e.UserId == CurrentUser(User) && e.DeckId == item.DeckId);
+
+        if (learnStatus == null)
+        {
+            return BadRequest(new Error("Error", "You are not learning this card."));
+        }
+
+        // Reset item and save.
+        item.NumberOfReviews = 0;
+        item.LastReview = DateTime.Now;
+        item.LearnedAt = DateTime.Now;
+        item.NextReview = DateTime.Now.AddDays(1);
+        _context.Entry(item).State = EntityState.Modified;
+
+        _context.SaveChanges();
+
+        // Return reset item's card DTO.
+        var card = await _context.cards.FindAsync(item.CardId);
+
+        return Ok(card.GetDto());
+    }
 }
