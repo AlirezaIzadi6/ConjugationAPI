@@ -80,7 +80,7 @@ public class LearnController : MyController
             .ToListAsync();
         if (itemsNotLearned.Count() == 0)
         {
-            var newLearningUnit = await _context.units.FirstOrDefaultAsync(e => e.OrderNumber == learningUnit.OrderNumber + 1);
+            var newLearningUnit = await _context.units.FirstOrDefaultAsync(e => e.OrderNumber == learningUnit.OrderNumber + 1 && e.DeckId == deckId);
             string response;
             if (newLearningUnit == null)
             {
