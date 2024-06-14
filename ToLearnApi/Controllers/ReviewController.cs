@@ -132,11 +132,9 @@ public class ReviewController : MyController
             return NotFound();
         }
 
-        var learnStatus = await _context.learnStatuses.FirstOrDefaultAsync(e => e.UserId == CurrentUser(User) && e.DeckId == item.DeckId);
-
-        if (learnStatus == null)
+        if (item.UserId != CurrentUser(User))
         {
-            return BadRequest(new Error("Error", "You are not learning this card."));
+            return Unauthorized();
         }
 
         // Reset item and save.
