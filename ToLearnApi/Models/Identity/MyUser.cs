@@ -17,6 +17,7 @@ public class CustomUser : IdentityUser
     public List<LearnStatus> learnStatuses { get; set; } = new();
     public List<Profile> Profiles { get; set; } = new();
     public List<Question> Questions { get; set; } = new();
+    public List<UserScore> UserScores { get; set; } = new();
 }
 
 public class CustomRole : IdentityRole

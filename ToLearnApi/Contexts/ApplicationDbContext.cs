@@ -12,6 +12,9 @@ public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, st
 {
     // Add dbsets except default identity models that IdentityDbContext includes:
 
+    // Identity models:
+    public virtual DbSet<UserScore> UserScores { get; set; }
+
     // Conjugation models:
     public virtual DbSet<Conjugation> conjugations { get; set; }
     public virtual DbSet<Profile> Profiles { get; set; }
@@ -74,6 +77,11 @@ public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, st
         modelBuilder.Entity<CustomUserToken>(b =>
         {
             b.ToTable("userTokens", identitySchemaName);
+        });
+
+        modelBuilder.Entity<UserScore>(b =>
+        {
+            b.ToTable("UserScores", identitySchemaName);
         });
 
         // Conjugation models:
