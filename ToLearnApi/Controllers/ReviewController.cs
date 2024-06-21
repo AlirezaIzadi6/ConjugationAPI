@@ -5,6 +5,7 @@ using ToLearnApi.Contexts;
 using ToLearnApi.Models.Flashcards;
 using ToLearnApi.Models.Flashcards.LearnAndReview;
 using ToLearnApi.Models.General;
+using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Controllers;
 
@@ -96,6 +97,17 @@ public class ReviewController : MyController
         TimeSpan days = new((int)Math.Pow(2, item.NumberOfReviews), 0, 0, 0);
         item.NextReview = item.LastReview.Add(days);
         _context.Entry(item).State = EntityState.Modified;
+
+        var newScore = new UserScore()
+        {
+            UserId = CurrentUser(User),
+            Score = 5,
+            Reason = $"review{item.CardId}",
+            TimeStamp = DateTime.Now
+        };
+
+        _context.UserScores.Add(newScore);
+
         await _context.SaveChangesAsync();
 
         return Ok("Right");

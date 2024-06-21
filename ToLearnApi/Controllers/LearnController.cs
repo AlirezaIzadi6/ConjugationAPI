@@ -5,6 +5,7 @@ using ToLearnApi.Contexts;
 using ToLearnApi.Models.Flashcards;
 using ToLearnApi.Models.Flashcards.LearnAndReview;
 using ToLearnApi.Models.General;
+using ToLearnApi.Models.Identity;
 
 namespace ToLearnApi.Controllers;
 
@@ -154,6 +155,16 @@ public class LearnController : MyController
         TimeSpan oneDay = new(1, 0, 0, 0);
         item.NextReview = item.LearnedAt.Add(oneDay);
         _context.Entry(item).State = EntityState.Modified;
+
+        var newScore = new UserScore()
+        {
+            UserId = CurrentUser(User),
+            Score = 5,
+            Reason = $"learn{cardId}",
+            TimeStamp = DateTime.Now
+        };
+        _context.UserScores.Add(newScore);
+
         await _context.SaveChangesAsync();
 
         return Ok();
@@ -179,6 +190,15 @@ public class LearnController : MyController
                 TimeSpan oneDay = new(1, 0, 0, 0);
                 item.NextReview = item.LearnedAt.Add(oneDay);
                 _context.Entry(item).State = EntityState.Modified;
+
+                var newScore = new UserScore()
+                {
+                    UserId = CurrentUser(User),
+                    Score = 5,
+                    Reason = $"learn{cardId}",
+                    TimeStamp = DateTime.Now
+                };
+                _context.UserScores.Add(newScore);
                 result.Add(cardId);
             }
         }
