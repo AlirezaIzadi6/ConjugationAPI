@@ -32,7 +32,7 @@ public class CardsController : MyController
             cardDtos.Add(card.GetDto());
         }
 
-        return Ok(cardDtos);
+        return cardDtos;
     }
 
     // GET: api/Cards/50
@@ -57,14 +57,14 @@ public class CardsController : MyController
     public async Task<IActionResult> PutCard(int id, CardDto cardDto)
     {
         // Find requested card and check errors.
-        var card = _context.cards.Find(id);
+        var card = await _context.cards.FindAsync(id);
 
         if (card == null)
         {
             return NotFound();
         }
 
-        if (id != card.Id)
+        if (cardDto.Id != card.Id)
         {
             return BadRequest(new Error("Wrong Id", "You are requesting a different id than the card you are trying to modify."));
         }
