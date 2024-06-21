@@ -13,17 +13,17 @@ public class ApplicationDbContext : IdentityDbContext<CustomUser, CustomRole, st
     // Add dbsets except default identity models that IdentityDbContext includes:
 
     // Conjugation models:
-    public DbSet<Conjugation> conjugations { get; set; }
-    public DbSet<Profile> Profiles { get; set; }
-    public DbSet<Question> questions { get; set; }
-    public DbSet<Answer> answers { get; set; }
+    public virtual DbSet<Conjugation> conjugations { get; set; }
+    public virtual DbSet<Profile> Profiles { get; set; }
+    public virtual DbSet<Question> questions { get; set; }
+    public virtual DbSet<Answer> answers { get; set; }
 
     // Flashcards models:
-    public DbSet<Deck> decks { get; set; }
-    public DbSet<Unit> units { get; set; }
-    public DbSet<Card> cards { get; set; }
-    public DbSet<Item> items { get; set; }
-    public DbSet<LearnStatus> learnStatuses { get; set; }
+    public virtual DbSet<Deck> decks { get; set; }
+    public virtual DbSet<Unit> units { get; set; }
+    public virtual DbSet<Card> cards { get; set; }
+    public virtual DbSet<Item> items { get; set; }
+    public virtual DbSet<LearnStatus> learnStatuses { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
